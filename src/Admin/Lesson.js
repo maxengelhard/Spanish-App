@@ -1,8 +1,8 @@
 import React from 'react'
 import EditQuestion from './EditQuestion'
 
-const Lesson = ({questions, addQ, editQ, day}) => {
-    
+const Lesson = ({questions, addQ, editQ, day,setday}) => {
+
     return (
         <div className='lesson'>
     <h3>Assignment 1: Fill In The Blanks</h3>
@@ -12,7 +12,7 @@ const Lesson = ({questions, addQ, editQ, day}) => {
             {!question.active ? <button onClick={editQ(index)}>{'Edit'}</button>: null}
         </div>)
     })}
-    {questions[day].length >0 ?  <button onClick={() => console.log('send lesson')}>Send lesson</button>: null}
+    {questions[day].length >0 ?  <button onClick={() => setday(0)}>Send lesson</button>: null}
     </div>
     )
 }

@@ -36,7 +36,7 @@ const AdminJS = () => {
         }
         else {
             edited.push({
-                question: lastQ.length >1 ? `${lastQ[0]}. ${lastQ[lastQ.length-1]}`: `${sentences[day].englishS} ${newQuestion}`,
+                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
                 id: `${day}-${questions[day].length}`,
                 active:false
             })
@@ -70,8 +70,9 @@ const AdminJS = () => {
     }
     return (
     <div style={{display:'block', height: '100%'}}>
+        <h1>Admin</h1>
     <div className='dayButtons'>
-    <button style={{width: '30px'}}onClick={() => setday(0)}>1</button>
+    <button onClick={() => setday(0)}>1</button>
     <button onClick={() => setday(1)}>2</button>
     <button onClick={() => setday(2)}>3</button>
     <button onClick={() => setday(3)}>4</button>
