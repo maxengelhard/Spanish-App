@@ -1,0 +1,57 @@
+{
+  "name": "spanish-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.20.0",
+    "cheerio": "^1.0.0-rc.3",
+    "concurrently": "^5.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "ra-data-simple-rest": "^3.9.3",
+    "react": "^17.0.0",
+    "react-admin": "^3.9.5",
+    "react-dom": "^17.0.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.4",
+    "request": "^2.88.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "client": "npm start",
+    "server": "nodemon server.js",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "dev": "concurrently \"npm run client\" \"npm run server\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "server.js",
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "author": "Max Engelhard",
+  "license": "MIT",
+  "proxy": "http://localhost:5000"
+}
