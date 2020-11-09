@@ -3,15 +3,24 @@ import NewQuestion from './NewQuestionForm'
 import Lesson from './Lesson'
 
 const AdminJS = () => {
-    const [day, setday] = useState(0)
+    // to make all the admins
+    let adminBtns = []
+    let questionArr = []
+    for (let i=0; i<500;i++) {
+        adminBtns.push(<button key={i} onClick={() => setday(i)}>{i+1}</button>)
+        questionArr.push([])
+    }
+    const [day, setday] = useState(-1)
     const [sentences, setSentences] = useState([])
-    const [questions, setQuestions] = useState([[],[],[],[]])
+    const [questions, setQuestions] = useState(questionArr)
 
     useEffect(() => {
         // to change the sentences
+        if (day > -1) {
         fetch(`/day${day+1}`)
         .then(res => res.json())
         .then(data => setSentences(data))
+        }
 
     }, [day])
 
@@ -61,28 +70,24 @@ const AdminJS = () => {
     // highlight any words in spanish that have these unqiue words
     const higlight = (str) => {
         const wordArr = str.toLowerCase().split(' ')
-        return wordArr.map((word,i) => {
+        return wordArr.reduce((sentence, word) => {
             if (uniqueWords.includes(word)) {
-                return <p key={i}><b>{word}</b></p>
+            return `${sentence + word.toUpperCase()} `
             }
-            return <p key={i}>{word}</p>
-        })
+        return `${sentence + word} `
+        }, '')
+
     }
+
+    
+
+
     return (
     <div style={{display:'block', height: '100%'}}>
         <h1>Admin</h1>
-    <div className='dayButtons'>
-    <button onClick={() => setday(0)}>1</button>
-    <button onClick={() => setday(1)}>2</button>
-    <button onClick={() => setday(2)}>3</button>
-    <button onClick={() => setday(3)}>4</button>
-    </div>
-    <Lesson questions={questions} addQ={addQ} editQ={editQ} day={day}/>
-    <div className='createLesson'>
-    <div className='words'>
-        <h3>New Words</h3>
-    {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
-    </div>
+    {(day >-1) ?
+    <div className='adminRow'>
+    <div className='adminColumn'>
     {sentences.map((item,index) => {
     return (<div key={item.id}>
         <p><b>{item.id}:</b> {item.englishS}</p>
@@ -90,6 +95,19 @@ const AdminJS = () => {
         <NewQuestion addQ={addQ}/>
     </div>)
     })}
+    </div>
+    <div className='adminColumn'>
+    <div className='words'>
+        <h3>New Words</h3>
+    {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
+    </div>
+    <Lesson 
+    questions={questions} 
+    addQ={addQ} 
+    editQ={editQ} 
+    day={day} 
+    setday={setday}/>
+    
     <h3>Explanation</h3>
     {sentences.map(item => {
     return (<div key={item.id}>
@@ -100,6 +118,11 @@ const AdminJS = () => {
     </div>)
     })}
     </div>
+    </div> : 
+    <div className='dayButtons'>
+    {adminBtns}
+    </div>
+    }
     </div>
     )
 }

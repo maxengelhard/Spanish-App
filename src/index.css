@@ -43,8 +43,25 @@ header img {
   margin: auto;
 }
 
+.dayButtons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .dayButtons > button {
-  width: 30px;
+  width: 40px;
   display: block;
+  margin-right: 5px;
   margin-bottom: 5px;
+}
+
+.adminColumn {
+  float: left;
+  width: 50%;
+}
+
+.adminRow:after {
+  content: '';
+  display: table;
+  clear: both;
 }
