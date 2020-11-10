@@ -33,34 +33,34 @@ app.use(express.urlencoded({extended: false}))
 
 
 // insert word database
-app.get('/insertwords', async (req,res) => {
-    let sql = 'INSERT INTO words (id,word) VALUES ?;'
-    try {
-        const array = await getFrequentWords()
-        const values = array.map(obj => [obj.id,obj.word])
-        let query = db.query(sql, [values], (err) => {
-            if (err) throw err;
-            else res.send('Finished')
-        })
-        }
-        catch(error) {
-            console.log(error)
+// app.get('/insertwords', async (req,res) => {
+//     let sql = 'INSERT INTO words (id,word) VALUES ?;'
+//     try {
+//         const array = await getFrequentWords()
+//         const values = array.map(obj => [obj.id,obj.word])
+//         let query = db.query(sql, [values], (err) => {
+//             if (err) throw err;
+//             else res.send('Finished')
+//         })
+//         }
+//         catch(error) {
+//             console.log(error)
     
-        }
+//         }
     
     
-})
+// })
 
 // show words
 
-app.get('/showwords', async(req,res) => {
-    let sql = 'SELECT * FROM words;'
-    db.query(sql, (err,results) => {
-        if (err) throw err
-        console.log(results)
-        res.send('finsihed')
-    })
-})
+// app.get('/showwords', async(req,res) => {
+//     let sql = 'SELECT * FROM words;'
+//     db.query(sql, (err,results) => {
+//         if (err) throw err
+//         console.log(results)
+//         res.send('finsihed')
+//     })
+// })
 
 // insert sentences to sentences table:  finished
 // app.get('/insertsentence', async (req,res) => {
@@ -81,6 +81,46 @@ app.get('/showwords', async(req,res) => {
     
     
 // })
+
+// create
+app.post('/insert', async (req,res) => {
+    try {
+        const id = req.body.day
+        const {lesson}  = req.body
+        const questions = lesson.map(obj => [obj.id,obj.question])
+        console.log(questions)
+        const questionStr = lesson.reduce((str, obj) => {
+            return str + obj.question
+        },'')
+        const arr = [id,questionStr]
+        let sql = 'INSERT INTO day VALUES (?);'
+        db.query(sql,[arr], (err,result) => {
+            if (err) throw err;
+        })
+        sql = 'INSERT INTO questions VALUES ?;'
+        db.query(sql,[questions], (err,result) => {
+            if (err) throw err;
+        })
+        
+    }
+    catch(err) {
+        console.log(err)
+    }
+    
+})
+
+app.get('/questions', async (req,res) => {
+    try {
+        let sql = "SELECT * FROM questions;"
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
 // read
 app.get(`/day:day`, async (req,res) => {

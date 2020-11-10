@@ -6,12 +6,13 @@ const Lesson = ({questions, addQ, editQ, day,setday}) => {
         <div className='lesson'>
     <h3>Assignment 1: Fill In The Blanks</h3>
     {questions[day].map((question,index) => {
+        // const split = question.split('.')
+        const split = question.question.split('.')
         return (<div key={question.id}> 
-            {question.active ? <EditQuestion editQ={editQ} addQ={addQ} prevQuestion={question}/> : <p>{question.question}</p>}
+            {question.active ? <EditQuestion editQ={editQ} addQ={addQ} prevQuestion={question}/> : split.map((txt,i) => <p key={i}>{txt}</p>)}
             {!question.active ? <button onClick={editQ(index)}>{'Edit'}</button>: null}
         </div>)
     })}
-    {questions[day].length >0 ?  <button onClick={() => setday(-1)}>Send lesson</button>: null}
     </div>
     )
 }

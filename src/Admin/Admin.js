@@ -13,13 +13,29 @@ const AdminJS = () => {
     const [day, setday] = useState(-1)
     const [sentences, setSentences] = useState([])
     const [questions, setQuestions] = useState(questionArr)
-
     useEffect(() => {
         // to change the sentences
         if (day > -1) {
         fetch(`/day${day+1}`)
         .then(res => res.json())
         .then(data => setSentences(data))
+
+        fetch('/questions')
+        .then(res => res.json())
+        .then(data => {
+            // to change based on the day
+            let newArr = Array(500).fill([])
+            let dayArr = []
+            data.forEach(obj => {
+                const inject = obj.id.split('-')[0]
+                if (inject === day.toString()) {
+                    dayArr.push(obj)
+                }
+            })
+            newArr[day] = dayArr
+            setQuestions(newArr)
+        })
+
         }
 
     }, [day])
@@ -27,7 +43,6 @@ const AdminJS = () => {
 
     const addQ = (newQuestion) => {
         let newArr = [...questions]
-        const lastQ = newQuestion.split('.')
         let edited = questions[day]
         // to check if we are editing
         const index = edited.reduce((value, obj,index) => {
@@ -38,17 +53,19 @@ const AdminJS = () => {
         },false)
         if (Number.isInteger(index)) {
             edited[index] = {
-            question: lastQ.length >1 ? `${lastQ[0]}. ${lastQ[lastQ.length-1]}`: `${sentences[day].englishS} ${newQuestion}`,
             id: `${day}-${index}`,
+            question: `${newQuestion}`,
             active:false
         } 
         }
         else {
             edited.push({
-                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
                 id: `${day}-${questions[day].length}`,
+                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
                 active:false
             })
+
+            document.querySelector(`.sentence-${day}-${questions[day].length-1}`).classList.add('submited')
             
         }
         newArr[day] = edited
@@ -67,6 +84,9 @@ const AdminJS = () => {
     // })
     const uniqueWords = [...new Set(sentences.map(item => item.word))]
 
+    // is there prepositions?
+
+
     // highlight any words in spanish that have these unqiue words
     const higlight = (str) => {
         const wordArr = str.toLowerCase().split(' ')
@@ -79,7 +99,16 @@ const AdminJS = () => {
 
     }
 
-    
+    // send lesson
+    const sendLesson = () => {
+        fetch('/insert', {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({day, lesson: questions[day], questions})
+        })
+    }
 
 
     return (
@@ -89,7 +118,7 @@ const AdminJS = () => {
     <div className='adminRow'>
     <div className='adminColumn'>
     {sentences.map((item,index) => {
-    return (<div key={item.id}>
+    return (<div className={`sentence-${day}-${index}`} key={item.id}>
         <p><b>{item.id}:</b> {item.englishS}</p>
         <div style={{display: 'flex'}}>{higlight(item.spanishS)}</div>
         <NewQuestion addQ={addQ}/>
@@ -107,17 +136,25 @@ const AdminJS = () => {
     editQ={editQ} 
     day={day} 
     setday={setday}/>
-    
     <h3>Explanation</h3>
     {sentences.map(item => {
     return (<div key={item.id}>
         <h3>{item.word}</h3>
         <p>{item.way}</p>
-        <p>{item.spanishS}</p>
         <p>{item.englishS}</p>
+        <p>{item.spanishS}</p>
     </div>)
     })}
+    {questions[day].length >0 ?  
+    <button onClick={() => {
+        sendLesson()
+        setday(-1)
+        }}>
+        Send lesson
+    </button>
+        : null}
     </div>
+    
     </div> : 
     <div className='dayButtons'>
     {adminBtns}

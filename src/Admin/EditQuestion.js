@@ -12,7 +12,7 @@ const EditQuestionForm = ({addQ, prevQuestion}) => {
     return (
         clear ? null : 
         <form onSubmit={handleSumbit}>
-        <input type="text" value={question} required onChange={(e) => setQuestion(e.target.value)} />
+        <textarea value={question} required onChange={(e) => setQuestion(e.target.value)} />
         <input type='submit' value='Submit' />
         </form>
         
