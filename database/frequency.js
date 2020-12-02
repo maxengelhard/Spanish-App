@@ -3,7 +3,9 @@ const cheerio = require('cheerio')
 const getSentences = require('./sentences')
 
 const page_url = `https://en.wiktionary.org/wiki/User:Matthias_Buchmeier/Spanish_frequency_list-1-5000`
-const dict_url = `https://www.spanishdict.com/translate/` 
+const dict_url = `https://www.spanishdict.com/translate/`
+const engEnd = '?langFrom=es'
+
 
 let frequentWords = []
 
@@ -44,6 +46,27 @@ async function pushSentences() {
 }
 
 
+async function getEnglishSentences(arr) {
+    await arr
+    await asyncForEach(arr, async (object) => {
+        object.sentences = await getSentences(`${dict_url}${object.word}${engEnd}`,object.word_id)
+        console.log(`word ${object.word_id} done`)
+    })
+    return arr
+
+}
+
+async function getSpanishSentences(arr) {
+    await arr
+    await asyncForEach(arr, async (object) => {
+        object.sentences = await getSentences(`${dict_url}${object.word}`,object.word_id)
+        console.log(`word ${object.word_id} done`)
+    })
+    return arr
+
+}
+
+
     
 
     
@@ -70,7 +93,10 @@ async function pushSentences() {
 
 module.exports = {
     getFrequentWords,
-    pushSentences
+    pushSentences,
+    asyncForEach,
+    getEnglishSentences,
+    getSpanishSentences
 
 }
 

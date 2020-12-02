@@ -1,3 +1,10 @@
-const idioms = ['el que', 'la que','¿Por qué?',
+const idioms = { 
+    1: ['el que', 'la que','¿Por qué?',
 'soy yo','lo es','yo lo soy','que sea',
-'Qué __ que seas']
+'Qué que seas'],
+    2: ['está por']
+
+}
+
+
+export default idioms

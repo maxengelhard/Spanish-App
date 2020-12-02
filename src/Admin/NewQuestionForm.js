@@ -1,8 +1,9 @@
-import React, {useState } from 'react'
+import React, {useState} from 'react'
 
-const NewQuestionForm = ({addQ}) => {
-    const [question, setQuestion] = useState('');
+const NewQuestionForm = ({addQ,qform}) => {
+    const [question, setQuestion] = useState(qform);
     const [clear, setClear] = useState(false)
+
     const handleSumbit = (e) => {
         e.preventDefault();
         addQ(question)

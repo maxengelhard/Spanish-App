@@ -2,17 +2,26 @@ import React, {useState, useEffect } from 'react'
 import NewQuestion from './NewQuestionForm'
 import Lesson from './Lesson'
 
+// import idioms from '../grammar/idioms'
+
+
 const AdminJS = () => {
     // to make all the admins
+    
     let adminBtns = []
     let questionArr = []
+    const [finished, setFinished] = useState([])
     for (let i=0; i<500;i++) {
-        adminBtns.push(<button key={i} onClick={() => setday(i)}>{i+1}</button>)
+        const green = finished[i] ? 'green': null
+        adminBtns.push(<button className={green}key={i} onClick={() => setday(i)}>{i+1}</button>)
         questionArr.push([])
-    }
+        }
+    
     const [day, setday] = useState(-1)
     const [sentences, setSentences] = useState([])
     const [questions, setQuestions] = useState(questionArr)
+    const [learnedWords, setLearnedWords] = useState([])
+    
     useEffect(() => {
         // to change the sentences
         if (day > -1) {
@@ -20,6 +29,7 @@ const AdminJS = () => {
         .then(res => res.json())
         .then(data => setSentences(data))
 
+        // to change questions if we have any
         fetch('/questions')
         .then(res => res.json())
         .then(data => {
@@ -36,10 +46,36 @@ const AdminJS = () => {
             setQuestions(newArr)
         })
 
-        }
+
+        } 
+        // to change and check if the day is already in the SQL 
+        //if it is then we are updating not inserting into SQLs
+        fetch('/lesson')
+        .then(res => res.json())
+        .then(data => {
+            let newArr = Array(500).fill(false)
+            data.forEach(day => newArr.splice(day.dayID,1,true))
+            setFinished(newArr)
+        })
+
+        // this will allow me to higlight all the words we've already had
+        fetch('/words')
+        .then(res => res.json())
+        .then(data => {
+            // slice the array from zero all the way to the new day
+            const usedWords = data.slice(0,(day+1)*10).map(obj => obj.word)
+            setLearnedWords(usedWords)
+        })
+
+        
+        
+         
+        // console.log(Translate('hello world')
+        // .then(data => console.log(data)))
+
+      
 
     }, [day])
-
 
     const addQ = (newQuestion) => {
         let newArr = [...questions]
@@ -56,7 +92,7 @@ const AdminJS = () => {
             id: `${day}-${index}`,
             question: `${newQuestion}`,
             active:false
-        } 
+        }
         }
         else {
             edited.push({
@@ -64,8 +100,6 @@ const AdminJS = () => {
                 question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
                 active:false
             })
-
-            document.querySelector(`.sentence-${day}-${questions[day].length-1}`).classList.add('submited')
             
         }
         newArr[day] = edited
@@ -82,22 +116,20 @@ const AdminJS = () => {
     // shuffle(() => {
 
     // })
-    const uniqueWords = [...new Set(sentences.map(item => item.word))]
+    const uniqueWords = learnedWords.slice(day*10,(day+1)*10)
 
     // is there prepositions?
 
-
-    // highlight any words in spanish that have these unqiue words
-    const higlight = (str) => {
-        const wordArr = str.toLowerCase().split(' ')
-        return wordArr.reduce((sentence, word) => {
-            if (uniqueWords.includes(word)) {
-            return `${sentence + word.toUpperCase()} `
-            }
-        return `${sentence + word} `
-        }, '')
-
-    }
+    // is there idioms
+    // console.log(idioms)
+    // const trim = (arr) => {
+    //     const index = arr.indexOf('')
+    //     if (index > -1) {
+    //         arr.splice(index,1)
+    //     }
+    //     return arr
+    // }
+    
 
     // send lesson
     const sendLesson = () => {
@@ -106,10 +138,20 @@ const AdminJS = () => {
                 'Content-type': 'application/json'
             },
             method: 'POST',
-            body: JSON.stringify({day, lesson: questions[day], questions})
+            body: JSON.stringify({day, lesson: questions[day], solution: sentences})
         })
     }
 
+    const updateLesson = () => {
+        fetch('/update', {
+            headers: {
+                'Content-type': 'application/json'
+            },
+           method: 'PATCH',
+           body: JSON.stringify({day, lesson: questions[day], solution: sentences})
+        })
+    }
+    
 
     return (
     <div style={{display:'block', height: '100%'}}>
@@ -118,10 +160,12 @@ const AdminJS = () => {
     <div className='adminRow'>
     <div className='adminColumn'>
     {sentences.map((item,index) => {
-    return (<div className={`sentence-${day}-${index}`} key={item.id}>
+        const submited = questions[day][index] ? 'submited': null
+    return (<div className={`sentence-${day}-${index} ${submited}`} key={item.id}>
         <p><b>{item.id}:</b> {item.englishS}</p>
-        <div style={{display: 'flex'}}>{higlight(item.spanishS)}</div>
-        <NewQuestion addQ={addQ}/>
+        <p>{item.spanishS}</p>
+        <p>{item.qform}</p>
+        {!submited ? <NewQuestion addQ={addQ} qform={item.qform}/> : null}
     </div>)
     })}
     </div>
@@ -145,12 +189,12 @@ const AdminJS = () => {
         <p>{item.spanishS}</p>
     </div>)
     })}
-    {questions[day].length >0 ?  
+    {questions[day].length >0 ? 
     <button onClick={() => {
-        sendLesson()
+        !finished[day] ? sendLesson() : updateLesson()
         setday(-1)
         }}>
-        Send lesson
+        {!finished[day] ? 'Send Lesson' : 'Update Lesson'}
     </button>
         : null}
     </div>
