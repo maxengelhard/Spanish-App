@@ -13,8 +13,8 @@ let createContact = new SibApiV3Sdk.CreateContact();
 createContact.email = 'EMAIL';
 createContact.listIds = [2]
 createContact.attributes = {
-    "FIRSTNAME":"James",
-    "LASTNAME":"Hanlon",
+    "FIRSTNAME":"FNAME",
+    "LASTNAME":"NAME",
     "OPT_IN": true,
 }
 

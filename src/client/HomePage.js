@@ -3,6 +3,7 @@ import Header from './header'
 import MainBody from './mainBody'
 import SampleEmail from './SampleEmail'
 import MailForm from './mailForm'
+import HowEmail from './HowEmail'
 
 const HomePage = () => {
     return (
@@ -10,6 +11,7 @@ const HomePage = () => {
       <Header />
       <div className='spacer'></div>
       <MainBody />
+      <HowEmail />
       <SampleEmail />
       <MailForm /> 
         </div>

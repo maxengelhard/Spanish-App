@@ -37,9 +37,11 @@ const SampleEmail = () => {
     return (
         <div className='sampleEmail'>
             <h1>Sample Email</h1>
-            <button onClick={() => setday(0)}>Day 1</button>
-            <button onClick={() => setday(7)}>After Week 1</button>
-            <button onClick={() => setday(30)}>After One Month</button>
+            <div className='sampleButtons'>
+            <button className={day===0? 'active': ''} onClick={() => setday(0)}>Day 1</button>
+            <button className={day===7? 'active': ''} onClick={() => setday(7)}>After Week 1</button>
+            <button className={day===30? 'active': ''} onClick={() => setday(30)}>After One Month</button>
+            </div>
             New Words:
             <ol>
                 {newWords.map((word,i) => {
@@ -47,14 +49,6 @@ const SampleEmail = () => {
                     return <li key={i}>{word}</li>
                 })}
             </ol>
-            New Idioms:
-            <button onClick={() => setPro(!pro)}>Pro version</button>
-            {pro ? <ul>
-                <li><b>el que</b></li>
-                <li><b>la que</b></li>
-                <li><b>la de</b></li>
-    <li lang='es'><b>{ES['?']}Por qu{ES['e']}?</b></li>
-            </ul>: null}
             <h1>Assignment: Fill In The Blanks</h1>
             <ul>
             {assignment.split('<p>').map((question,i) => {

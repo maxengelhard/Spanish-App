@@ -17,12 +17,13 @@ body {
 
 nav {
   display: flex;
-  background-color: gray;
+  background-color: white;
 	align-items: center;
 	height: 65px;
 	font-family: "888", verdana, sans-serif;
 	position: fixed;
-	width: 100%;
+  width: 100%;
+  padding: 20px;
 }
 
 .logo {
@@ -40,13 +41,14 @@ nav {
 .nav-links {
   display: flex;
   width: 50%;
-  margin-left: 50%;
+  margin-left: 45%;
+  padding-right: 5%;
 }
 
 
 .nav-links a {
   text-decoration: none;
-  color: white;
+  color: black;
 }
 
 .nav-links li {
@@ -62,7 +64,7 @@ nav {
 .burger div {
   width: 25px;
 	height: 3px;
-	background-color: white;
+	background-color: black;
 	margin: 5px;
 }
 
@@ -101,7 +103,7 @@ nav {
 }
 
 .spacer {
-  padding-top: 65px;
+  padding-top: 105px;
 }
 
 @media screen and (max-width: 600px) {
@@ -169,17 +171,86 @@ nav {
 
 /* end of nav menu*/
 
+.firstRow {
+  display: flex;
+  background-image: url('./spainFlag.jpg');
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
 
 .paragraph1 {
-  width: 90%;
-  margin-left: 10px;
+  flex: 50%;
+  padding: 20px;
+  height: 500px;
+  color: white;
 }
+
+.paragraph1 ul {
+  padding-left: 20px;
+}
+
+.paragraph1 li {
+  padding-bottom: 10px;
+  text-decoration: underline;
+}
+
+.signUp1 {
+  flex: 40%;
+  padding: 20px;
+}
+
+@media screen and (max-width: 800px) {
+  .firstRow {
+    display: block;
+    width: 100%;
+    padding-right: 0px;
+    margin-right: 0px;
+    overflow: hidden;
+    background-size: 300%;
+  }
+  .paragraph1 {
+    width: 100%;
+    flex: 0%;
+    padding: 0;
+  }
+  .paragraph1 ul {
+    width: 90%;
+  }
+  .signUp1 {
+    margin-top: -40px;
+    width: 80%;
+    height: 500px;
+    flex: 0;
+    padding: 0;
+    padding-left: 10%;
+  }
+}
+
+
+/* end of first part of page*/
+/* start of sample email */
 
 .sampleEmail {
   text-align: center;
   width: 100%;
   margin: auto;
   height: 100%;
+  background-color: blue;
+}
+
+.sampleButtons {
+  display: flex;
+  width: 80%;
+  margin: auto;
+}
+
+.sampleButtons > button {
+  margin: 0 10px;
+}
+
+.active {
+  background-color: green;
 }
 
 .signUp {

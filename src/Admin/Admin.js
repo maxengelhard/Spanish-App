@@ -67,12 +67,6 @@ const AdminJS = () => {
             setLearnedWords(usedWords)
         })
 
-        
-        
-         
-        // console.log(Translate('hello world')
-        // .then(data => console.log(data)))
-
       
 
     }, [day])
@@ -117,6 +111,7 @@ const AdminJS = () => {
 
     // })
     const uniqueWords = learnedWords.slice(day*10,(day+1)*10)
+
 
     // is there prepositions?
 
@@ -170,6 +165,9 @@ const AdminJS = () => {
     })}
     </div>
     <div className='adminColumn'>
+    <div>
+        {learnedWords.join(' ')}
+        </div>
     <div className='words'>
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
