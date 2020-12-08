@@ -8,9 +8,16 @@ async function getSentences(page_url,word_id) {
     try {
     let sentenceArr = []
     
-    const {data} = await axios.get(page_url);
-    const $ = cheerio.load(data)
-    const usage = $('#dictionary-neodict-es').find('div._3aQ9irLD')
+    let {data} = await axios.get(page_url);
+    let $ = cheerio.load(data)
+    let usage = $('#dictionary-neodict-es').find('div._3aQ9irLD')
+    if (usage.length ===0) {
+        let {data} = await axios.get(page_url+'?langFrom=es');
+        $ = cheerio.load(data)
+        usage = $('#dictionary-neodict-es').find('div._3aQ9irLD')
+    }
+    
+
     usage.each((i,useCase) => {
         // each has number associtated
         const numberUse = $(useCase).find('span._2M9naesu')
@@ -26,7 +33,6 @@ async function getSentences(page_url,word_id) {
                 const spanSelect = $(translate).find('span._1f2Xuesa')
                 const engSelect = $(translate).find('span._3WrcYAGx')
                 const transData = translation[index].children[0].data
-                console.log(spanSelect.length)
                 spanSelect.each(j => {
                 const spanData = spanSelect[j].children[0].data
                 const engData = engSelect[j].children[0].data
@@ -37,50 +43,16 @@ async function getSentences(page_url,word_id) {
         })
     })
 
-    let verbs = []
-    const verb = $('div._2v8iz7Ez').length
-    if (verb > 0) {
-        const thisVerb = $('h1._1xnuU6l-')[0].children[0].data
-        const presentParticple = $('div._2xfncFkp').find('span')[0].children[0].data
-        const pastParticple = $('div._2xfncFkp').find('span')[1].children[0].data
-        verbs.push({thisVerb},{presentParticple},{pastParticple})
-        const persons = {
-            0: 'Yo',
-            1: 'Tu',
-            2: 'El',
-            3: 'Nos',
-            4: 'Vos',
-            5: 'Ellos'
-        }
-        const indicativeTable = $('table._2qmJM3i9')
-        const rows = $(indicativeTable).find('td._2UqTZCc2')
-        const label = $(indicativeTable).find("[aria-label]")
+    const verb = $('div._2v8iz7Ez').length > 0 ? $('h1._1xnuU6l-')[0].children[0].data: null
 
-        rows.each(i => {
-            for (let j=0; j<5;j++) {
-                const ariaLabel = label[5*i+j].attribs['aria-label']
-                verbs.push({[`${persons[i]}${j}`]: ariaLabel})
-            } 
-            
-        })
-
-
-    }
-
-     return [sentenceArr,verbs]
+     return [sentenceArr,verb]
 }
 catch(error) {
     console.log(error)
-    return [{word_id: 50001, usage: '', spanish: '', english: ''}]
+    return [{word_id: 50001, usage: '', spanish: '', english: ''},null]
 }
 }
 
-async function call() {
-    const result1 = await getSentences('https://www.spanishdict.com/translate/estoy',10)
-    // const result2 = await getSentences('https://www.spanishdict.com/translate/me?langFrom=es',10)
-    console.log(result1)
-}
 
-call()
 
-// module.exports = getSentences
+module.exports = getSentences
