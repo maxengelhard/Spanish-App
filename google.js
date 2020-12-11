@@ -14,6 +14,8 @@ async function translatethis(text) {
  
   // The target language
   const target = 'en';
+
+  // skip over the each's
  
   // Translates some text into english
   const [translation] = await translate.translate(text, target);

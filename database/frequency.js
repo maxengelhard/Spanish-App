@@ -40,22 +40,12 @@ async function pushSentences() {
 }
 
 
-async function getEnglishSentences(arr) {
-    await arr
-    await asyncForEach(arr, async (object) => {
-        const result = await getSentences(`${dict_url}${object.word}${engEnd}`,object.word_id)
-        object.sentences = result[0]
-        object.verb = result[1]
-        console.log(`word ${object.word_id} done`)
-    })
-    return arr
-
-}
-
 async function getSpanishSentences(arr) {
     await arr
     await asyncForEach(arr, async (object) => {
-        object.sentences = await getSentences(`${dict_url}${object.word}`,object.word_id)
+        const result = await getSentences(`${dict_url}${object.word}`,object.word_id)
+        object.sentences = result[0]
+        object.verb = result[1]
         console.log(`word ${object.word_id} done`)
     })
     return arr
@@ -66,7 +56,6 @@ async function getSpanishSentences(arr) {
 module.exports = {
     getFrequentWords,
     pushSentences,
-    getEnglishSentences,
     getSpanishSentences
 
 }

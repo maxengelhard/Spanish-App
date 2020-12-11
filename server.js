@@ -4,7 +4,9 @@ const dotenv = require('dotenv');
 dotenv.config()
 const cors = require('cors');
 const createSpanishSQL = require('./database/createSpanishSQL')
+const createVerbsSQL = require('./database/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
+
 
 
 // create connection
@@ -102,6 +104,9 @@ app.get('/sentences', async (req,res) => {
 })
 
 
+app.get('/conjugate', createVerbsSQL)
+
+
 // to see all the questions we have
 // when I click on each day I can then already see the questions I have
 
@@ -164,15 +169,14 @@ app.get('/words', async (req,res) => {
 
 
 // // insert sentences to sentences table:  finished
-app.get('/spanishsentence', createSpanishSQL)
+// app.get('/spanishsentence', createSpanishSQL)
 
 app.get('/verbs', async (req,res) => {
     try {
-        const sql="SELECT * FROM verbs"
+        let sql="SELECT * FROM verbs;"
         db.query(sql,(err,result) => {
             if (err) throw err;
-            const verbs = [...new Set(result.map(obj => obj.verb))]
-            res.json(verbs)
+            res.json(result)
         })
     }
     catch(error) {
@@ -181,7 +185,7 @@ app.get('/verbs', async (req,res) => {
 })
 
 
-// app.get('/sendtranslation', )
+// app.get('/sendtranslation', translateSentences)
 
 
 
