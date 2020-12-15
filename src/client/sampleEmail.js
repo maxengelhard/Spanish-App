@@ -1,5 +1,4 @@
 import React , {useState, useEffect } from 'react'
-import ES from '../grammar/ES'
 
 const SampleEmail = () => {
 
@@ -8,7 +7,7 @@ const SampleEmail = () => {
     const [newWords, setNewWords] = useState([])
     const [assignment, setassignment] = useState('')
     const [solution,setSolution] = useState('')
-    const [pro, setPro] = useState(false)
+    // const [pro, setPro] = useState(false)
 
     useEffect(() => {
         fetch('/words')

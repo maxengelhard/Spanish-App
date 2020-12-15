@@ -3,7 +3,7 @@ import EditQuestion from './EditQuestion'
 
 const Lesson = ({questions, addQ, editQ, day,setday}) => {
     return (
-        <div className='lesson'>
+    <div className='lesson'>
     <h3>Assignment 1: Fill In The Blanks</h3>
     {questions[day].map((question,index) => {
         const split = question.question.split('.')
