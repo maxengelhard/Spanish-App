@@ -2,6 +2,7 @@ import React, {useState, useEffect } from 'react'
 import NewQuestion from './NewQuestionForm'
 import Lesson from './Lesson'
 import {Link} from 'react-router-dom'
+import higlight from './highlight'
 
 
 const EachDay = ({match}) => {
@@ -140,7 +141,7 @@ const EachDay = ({match}) => {
         const submited = questions[day][index] ? 'submited': null
     return (<div className={`sentence-${day}-${index} ${submited}`} key={item.id}>
         <p><b>{item.id}:</b> {item.englishS}</p>
-        <p>{item.spanishS}</p>
+        <p>{higlight(item.spanishS,learnedWords)}</p>
         <p>{item.qform}</p>
         {!submited ? <NewQuestion addQ={addQ} qform={item.qform}/> : null}
     </div>)

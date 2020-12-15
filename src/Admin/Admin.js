@@ -1,16 +1,13 @@
 import React from 'react'
 import {BrowserRouter as Router, Route } from 'react-router-dom'
-import EachDay from './EachDay'
-import AdminHome from './AdminHome'
+// import EachDay from './EachDay'
+import {AdminHome,Routes} from './AdminHome'
 
 
 
 const AdminJS = () => {
     // to make all the admins
-    let routes = []
-    for (let i=0; i<500;i++) {
-        routes.push(<Route path={`/admin/day${i}`} key={i} component={EachDay} />)
-        }
+    
 
     return (
     
@@ -20,7 +17,7 @@ const AdminJS = () => {
     <Router>
     <div className='dayButtons'>
     <Route path='/admin' exact component={AdminHome}/>
-    {routes}
+    <Routes />
     </div>
     </Router>
     }
