@@ -6,13 +6,12 @@ import higlight from './highlight'
 
 
 const EachDay = ({match}) => {
-    const location = parseInt(match.url.slice(10))
+    const day = parseInt(match.url.slice(10))
     let questionArr = []
     const [finished, setFinished] = useState([])
     for (let i=0; i<500;i++) {
         questionArr.push([])
         }
-    const [day, setday] = useState(location)
     const [sentences, setSentences] = useState([])
     const [questions, setQuestions] = useState(questionArr)
     const [learnedWords, setLearnedWords] = useState([])
@@ -73,6 +72,7 @@ const EachDay = ({match}) => {
 
     }, [day])
 
+
     const addQ = (newQuestion) => {
         let newArr = [...questions]
         let edited = questions[day]
@@ -132,55 +132,77 @@ const EachDay = ({match}) => {
         })
     }
     
+    let lastSub = 0
+    
     return (
-    loading ? <div className="spin"></div> : 
-    <div>
-    <div className='adminRow'>
-    <div className='adminColumn'>
-    {sentences.map((item,index) => {
-        const submited = questions[day][index] ? 'submited': null
-    return (<div className={`sentence-${day}-${index} ${submited}`} key={item.id}>
-        <p><b>{item.id}:</b> {item.englishS}</p>
-        <p>{higlight(item.spanishS,learnedWords)}</p>
-        <p>{item.qform}</p>
-        {!submited ? <NewQuestion addQ={addQ} qform={item.qform}/> : null}
-    </div>)
-    })}
-    </div>
-    <div className='adminColumn'>
-    <div>
-        {learnedWords.join(' ')}
-        </div>
+    loading ? <div className="spin"></div> :
+    <div style={{width: '100%', overflowX: 'hidden'}}> 
     <div className='words'>
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
     </div>
-    <Lesson 
-    questions={questions} 
-    addQ={addQ} 
-    editQ={editQ} 
-    day={day} 
-    setday={setday}/>
-    {questions[day].length > 0 ? 
-    <Link to={`/admin`}>
+    <div className='eachDayPage'>
+    <table className='adminTable'>
+        <thead>
+            <tr>
+                <th>Questions</th>
+                <th>Explanation</th>
+                <th>Final</th>
+            </tr>
+        </thead>
+        <tbody>
+        {sentences.map((item,index) => {
+        const submited = questions[day][index] ? 'submited': null
+        lastSub = !questions[day][index+1] ? lastSub-index : index
+    return (<tr className={`sentence-${day}-${index}`} key={item.id}>
+        <td className={submited}>
+        <p><b>{item.id}:</b> {item.englishS}</p>
+        <p>{higlight(item.spanishS,learnedWords)}</p>
+        {lastSub === -1-index ? <NewQuestion addQ={addQ} qform={item.qform}/> : null}
+        </td>
+        <td className={submited}>
+        <h3>{item.word}</h3>
+        <p>{item.way}</p>
+        <p>{item.englishS}</p>
+        <p>{item.spanishS}</p>
+        </td>
+        {submited ?
+        <td>
+        <Lesson 
+        questions={questions}
+        day={day}
+        singleQ={questions[day][index].question}
+        id={questions[day][index].id}
+        addQ={addQ} 
+        editQ={editQ} 
+        />
+        { lastSub ===-1 ?
+        <Link to={`/admin`}>
     <button onClick={() => {
         !finished[day] ? sendLesson() : updateLesson()
         }}>
         {!finished[day] ? 'Send Lesson' : 'Update Lesson'}
     </button>
-    </Link>
-        : null}
-    <h3>Explanation</h3>
-    {sentences.map(item => {
-    return (<div key={item.id}>
-        <h3>{item.word}</h3>
-        <p>{item.way}</p>
-        <p>{item.englishS}</p>
-        <p>{item.spanishS}</p>
-    </div>)
+    </Link> : null
+        }
+    </td>
+        : null
+        }
+    </tr>)
     })}
-    </div>
+        </tbody>
+        </table>
+    {/* <div className='final'>
+    <h3>Final</h3> */}
+    {/* <Lesson 
+    questions={questions} 
+    addQ={addQ} 
+    editQ={editQ} 
+    day={day} /> */}
+    {/* {questions[day].length > 0 ? 
     
+        : null} */}
+    {/* </div> */}
     </div>
         </div>
     )

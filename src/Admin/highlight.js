@@ -1,6 +1,7 @@
 const higlight = (str,learnedWords) => {
     const wordArr = str.toLowerCase().split(' ')
     return wordArr.reduce((sentence, word) => {
+
         const punc = word.match('\\?|\\!|¿|¡|\\.|\\,')
         if (punc) {
             const puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)

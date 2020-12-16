@@ -1,7 +1,7 @@
 import React, {useState } from 'react'
 
 const EditQuestionForm = ({addQ, prevQuestion}) => {
-    const [question, setQuestion] = useState(prevQuestion.question);
+    const [question, setQuestion] = useState(prevQuestion);
     const handleSumbit = (e) => {
         e.preventDefault();
         addQ(question)
