@@ -1,15 +1,18 @@
 const higlight = (str,learnedWords) => {
     const wordArr = str.toLowerCase().split(' ')
     return wordArr.reduce((sentence, word) => {
+        const plural = word[word.length-1] ==='s' ? word.slice(0,word.length-1) : false
+        // const masculine = word[word.length-1] ==='o' ? word.slice(0,word.length-1)+'a' : false
+        // const feminie = word[word.length-1] ==='a' ? word.slice(0,word.length-1)+'o' : false
 
         const punc = word.match('\\?|\\!|¿|¡|\\.|\\,')
         if (punc) {
             const puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)
-            if (learnedWords.includes(puncWord)) {
+            if (learnedWords.includes(puncWord) || learnedWords.includes(plural)) {
                 return `${sentence + word.toUpperCase()} `
             }
         }
-        else if (learnedWords.includes(word)) {
+        else if (learnedWords.includes(word) || learnedWords.includes(plural)) {
         return `${sentence + word.toUpperCase()} `
         }
     return `${sentence + word} `

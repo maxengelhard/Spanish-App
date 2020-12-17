@@ -69,6 +69,7 @@ const EachDay = ({match}) => {
     }
 
     fetchData()
+    return 0;
 
     }, [day])
 
@@ -132,8 +133,6 @@ const EachDay = ({match}) => {
         })
     }
     
-    let lastSub = 0
-    
     return (
     loading ? <div className="spin"></div> :
     <div style={{width: '100%', overflowX: 'hidden'}}> 
@@ -153,18 +152,16 @@ const EachDay = ({match}) => {
         <tbody>
         {sentences.map((item,index) => {
         const submited = questions[day][index] ? 'submited': null
-        lastSub = !questions[day][index+1] ? lastSub-index : index
+        const lastSub = questions[day].length
     return (<tr className={`sentence-${day}-${index}`} key={item.id}>
         <td className={submited}>
-        <p><b>{item.id}:</b> {item.englishS}</p>
-        <p>{higlight(item.spanishS,learnedWords)}</p>
-        {lastSub === -1-index ? <NewQuestion addQ={addQ} qform={item.qform}/> : null}
-        </td>
-        <td className={submited}>
-        <h3>{item.word}</h3>
+        <p><b>{item.id}: {item.word}</b></p>
         <p>{item.way}</p>
         <p>{item.englishS}</p>
-        <p>{item.spanishS}</p>
+        </td>
+        <td className={submited}>
+        <p>{higlight(item.spanishS,learnedWords)}</p>
+        {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
         <td>
@@ -172,11 +169,11 @@ const EachDay = ({match}) => {
         questions={questions}
         day={day}
         singleQ={questions[day][index].question}
-        id={questions[day][index].id}
+        id={index}
         addQ={addQ} 
         editQ={editQ} 
         />
-        { lastSub ===-1 ?
+        { lastSub-1 ===index ?
         <Link to={`/admin`}>
     <button onClick={() => {
         !finished[day] ? sendLesson() : updateLesson()
@@ -192,17 +189,6 @@ const EachDay = ({match}) => {
     })}
         </tbody>
         </table>
-    {/* <div className='final'>
-    <h3>Final</h3> */}
-    {/* <Lesson 
-    questions={questions} 
-    addQ={addQ} 
-    editQ={editQ} 
-    day={day} /> */}
-    {/* {questions[day].length > 0 ? 
-    
-        : null} */}
-    {/* </div> */}
     </div>
         </div>
     )
