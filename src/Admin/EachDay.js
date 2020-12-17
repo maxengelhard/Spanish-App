@@ -33,12 +33,18 @@ const EachDay = ({match}) => {
             let newArr = Array(500).fill([])
             let dayArr = []
             data.forEach(obj => {
-                const inject = obj.id.split('-')[0]
+                const arr = obj.id.split('-')
+                const inject = arr[0]
                 if (inject === day.toString()) {
                     dayArr.push(obj)
                 }
             })
-            newArr[day] = dayArr
+            let final = Array(dayArr.length).fill()
+            dayArr.forEach(obj => {
+                const index = obj.id.split('-')[1]
+                final[index] = obj
+            })
+            newArr[day] = final
             setQuestions(newArr)
         })
 
