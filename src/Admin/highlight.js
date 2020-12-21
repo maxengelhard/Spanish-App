@@ -2,9 +2,7 @@ const higlight = (str,learnedWords) => {
     const wordArr = str.toLowerCase().split(' ')
     return wordArr.reduce((sentence, word) => {
         const plural = word[word.length-1] ==='s' ? word.slice(0,word.length-1) : false
-        // const masculine = word[word.length-1] ==='o' ? word.slice(0,word.length-1)+'a' : false
-        // const feminie = word[word.length-1] ==='a' ? word.slice(0,word.length-1)+'o' : false
-
+        
         const punc = word.match('\\?|\\!|¿|¡|\\.|\\,')
         if (punc) {
             const puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)

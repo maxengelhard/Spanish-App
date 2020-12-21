@@ -66,8 +66,30 @@ const EachDay = ({match}) => {
         .then(data => {
             // slice the array from zero all the way to the new day
             const usedWords = data.slice(0,(day+1)*10).map(obj => obj.word)
-            setLearnedWords(usedWords)
+        // this will check to see if we have a verb
+        // if we do we want the last index of that and all other verbs will be pushed into to usedWords
+            const verbId = data.slice(0,(day+1)*10).filter(obj => obj.vID !== null)
+            
+            fetch('/verbs')
+            .then(res => res.json())
+            .then(data => {
+                let verbArr = []
+                // get all the data of the vId's
+                // itereate over the verbs we have the index is the verb id
+                verbId.forEach(obj => {
+                    const arr = Object.values(data[obj.vID]).slice(1)
+                    verbArr.push(arr)
+
+                })
+        
+                // to make the verbs one big array
+                const cleanVerbs = [].concat.apply([], verbArr)
+                const ultimate = usedWords.concat(cleanVerbs)
+                setLearnedWords(ultimate)
+            })
         })
+
+        
     
 
         setLoading(false)

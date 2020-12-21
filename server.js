@@ -156,7 +156,7 @@ app.get(`/day:day`, async (req,res) => {
 // this will allow me to see all the words
 app.get('/words', async (req,res) => {
     try {
-        let sql = "SELECT word FROM words"
+        let sql = "SELECT * FROM words"
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -183,6 +183,47 @@ app.get('/verbs', async (req,res) => {
         console.log(error)
     }
 })
+
+// // push join verbs and used words
+// app.get('/usedwords', async (req,res) => {
+//     try {
+//         let sql="SELECT * FROM verbs;"
+//         db.query(sql, (err,verbArr) => {
+//             if (err) throw err;
+//             const strictArr = verbArr.map(obj => Object.values(obj))
+//             sql = "SELECT word_id, word FROM words"
+//             db.query(sql,(err,wordArr) => {
+//                 if (err) throw err
+//                 // find where they intersect
+//                 // itereate over the wordArr words
+//                 // find the index of the verb and add a verb id to it
+//                 const added = wordArr.map(obj => {
+//                     const word = obj.word
+//                     // itereate over the array of arrays
+//                     obj.vID = null
+//                     strictArr.forEach((arr,i) => {
+//                         if (arr.indexOf(word) !== -1) {
+//                             obj.vID = i
+//                         }
+//                     })
+//                     return Object.values(obj)
+//                 })
+//                 sql = "REPLACE INTO words VALUES ?"
+//                 db.query(sql,[added],(err,result) => {
+//                     if (err) throw err;
+//                     res.send('finsihed')
+//                 })
+
+//                 // res.json(added)
+//             })
+//             // then see about the day
+//             // res.json(fields)
+//         })
+//     }
+//     catch(error) {
+//         console.log(error)
+//     }
+// })
 
 
 // app.get('/sendtranslation', translateSentences)
