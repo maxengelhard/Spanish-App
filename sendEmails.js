@@ -75,9 +75,9 @@ const sendEmail = async () => {
         Data: 'Node + SES Example'
        }
       },
-    Source: 'mackw2019@gmail.com', /* required */
+    Source: '"FluencyDaily" <max@fluencydaily.com>', /* required */
     ReplyToAddresses: [
-       'mackw2019@gmail.com',
+       'max@fluencydaily.com',
       /* more items */
     ],
   };

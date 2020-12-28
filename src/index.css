@@ -19,15 +19,15 @@ nav {
   display: flex;
   background-color: white;
 	align-items: center;
-	height: 65px;
+	height: 95px;
 	font-family: "888", verdana, sans-serif;
 	position: fixed;
   width: 100%;
-  padding: 20px;
+  padding: 5px 30px;
 }
 
 .logo {
-  width: 200px;
+  width: 105px;
   height: 100%;
 }
 
@@ -108,10 +108,11 @@ nav {
 
 @media screen and (max-width: 600px) {
   .logo {
-    width: 150px;
+    width: 105px;
     z-index: 3;
-    margin-left: calc(50% - 75px);
+    margin-left: calc(50% - 105px);
   }
+  
 
   .hide {
     opacity: 0;
@@ -207,7 +208,7 @@ nav {
     padding-right: 0px;
     margin-right: 0px;
     overflow: hidden;
-    background-size: 300%;
+    background-size: 500%;
   }
   .paragraph1 {
     width: 100%;
@@ -218,9 +219,9 @@ nav {
     width: 90%;
   }
   .signUp1 {
-    margin-top: -40px;
+    margin-top: 0px;
     width: 80%;
-    height: 500px;
+    height: 550px;
     flex: 0;
     padding: 0;
     padding-left: 10%;

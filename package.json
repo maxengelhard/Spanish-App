@@ -1,6 +1,7 @@
 {
   "name": "spanish-app",
   "version": "0.1.0",
+  "homepage": "http://fluencydaily.com",
   "private": true,
   "dependencies": {
     "@google-cloud/storage": "^5.5.0",
