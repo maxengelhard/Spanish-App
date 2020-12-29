@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from './header'
 import MainBody from './mainBody'
-import SampleEmail from './SampleEmail'
+import SampleEmail from './sampleEmail'
 import MailForm from './mailForm'
 import HowEmail from './HowEmail'
 
