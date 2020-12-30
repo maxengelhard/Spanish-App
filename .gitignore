@@ -25,7 +25,8 @@ yarn-error.log*
 
 #/duplicate folder
 /Spanish-App
-*.jpg
-*.jpeg
-*.png
-*.gif
+# for images
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
