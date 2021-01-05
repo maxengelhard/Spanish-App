@@ -19,7 +19,7 @@ const createSpanishSQL = async (req,res) => {
                         const end = days+10 > 5000 ? 5000: days+10
                         const eachArr = words.slice(days,end)
                         days += 10
-                        sql = 'INSERT INTO engsentences (way,spanishS,englishS,word_id) VALUES ?;'
+                        sql = 'INSERT INTO sentences (way,spanishS,englishS,word_id) VALUES ?;'
                         const array = await getSpanishSentences(eachArr)
                         const sentences = array.map(word => word.sentences[0].map(usage => [usage.usage, usage.spanish, usage.english, usage.word_id]))
                         const values = [].concat.apply([], sentences);

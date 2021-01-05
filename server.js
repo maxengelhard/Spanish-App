@@ -6,6 +6,7 @@ const cors = require('cors');
 const createSpanishSQL = require('./database/createSpanishSQL')
 const createVerbsSQL = require('./database/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
+const wordsSQL = require('./database/wordsSQL')
 
 
 
@@ -103,6 +104,24 @@ app.get('/sentences', async (req,res) => {
     }
 })
 
+
+
+// make russian sql
+app.get('/wordsrussian', wordsSQL)
+
+// select russian words
+app.get('/russian',async (req,res) => {
+    try {
+        const sql = "SELECT * FROM wordsrussian"
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
 app.get('/conjugate', createVerbsSQL)
 
@@ -265,6 +284,6 @@ app.get('/getusers', (req,res) => {
     }
 })
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`Server started on ${port}`))

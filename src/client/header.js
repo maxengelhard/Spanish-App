@@ -1,7 +1,6 @@
 import React , {useState} from 'react'
 import ReactLogo from '../FluencyDaily.png'
 
-
 const Header = () => {
     
     const [toggle, setToggle] = useState(false)

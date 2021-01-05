@@ -1,7 +1,7 @@
 {
   "name": "spanish-app",
   "version": "0.1.0",
-  "homepage": "http://fluencydaily.com",
+  "homepage": "https://spanish-app.herokuapp.com",
   "private": true,
   "engines": {
     "node": "14.x"
@@ -63,5 +63,5 @@
   },
   "author": "Max Engelhard",
   "license": "MIT",
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:3000"
 }
