@@ -6,7 +6,8 @@ const cors = require('cors');
 const createSpanishSQL = require('./database/createSpanishSQL')
 const createVerbsSQL = require('./database/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
-const wordsSQL = require('./database/wordsSQL')
+const wordsSQL = require('./database/wordsSQL');
+const russianSQL = require('./database/russian/russianSQL')
 
 
 
@@ -91,6 +92,24 @@ app.patch('/update', async (req,res) => {
     }
 })
 
+
+
+// to see what days have been completed
+
+app.get('/completed', async (req,res) => {
+    try {
+        const sql="SELECT dayID FROM day"
+        db.query(sql, (err, result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
 app.get('/sentences', async (req,res) => {
     try {
         let sql = "SELECT * FROM sentences"
@@ -105,15 +124,52 @@ app.get('/sentences', async (req,res) => {
 })
 
 
-
-// make russian sql
+// make words sql
 app.get('/wordsrussian', wordsSQL)
+
+app.get('/russiansql', russianSQL)
 
 // select russian words
 app.get('/russian',async (req,res) => {
     try {
         const sql = "SELECT * FROM wordsrussian"
         db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+app.get('/russiansentences', async (req,res) => {
+    try {
+        const sql="SELECT * FROM sentencesrussian"
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            const unqiues = [...new Set(result.map(obj => obj.word_id))]
+            let cont = false
+            unqiues.forEach((num,i,arr) => {
+                if (arr[i+1] !== num+1) {
+                    cont = num
+                }
+            })
+            res.json(unqiues)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
+app.get('/wordsgerman', wordsSQL)
+
+app.get('/german', async (req,res) => {
+    try {
+        const sql = "SELECT * FROM wordsgerman"
+        db.query(sql, (err,result) => {
             if (err) throw err;
             res.json(result)
         })

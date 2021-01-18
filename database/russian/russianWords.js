@@ -1,6 +1,6 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
-const asyncForEach = require('./asyncForEach')
+const asyncForEach = require('../asyncForEach')
 
 const page_url = `https://en.wiktionary.org/wiki/Appendix:Frequency_dictionary_of_the_modern_Russian_language_(the_Russian_National_Corpus)/`
 

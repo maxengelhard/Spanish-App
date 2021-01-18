@@ -1,8 +1,8 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
-const asyncForEach = require('./asyncForEach')
 
-async function getSentences(page_url,word_id) {
+
+async function ruSentences(page_url,word_id) {
     try {
     let sentenceArr = []
     const {data} = await axios.get(page_url);
@@ -21,7 +21,7 @@ async function getSentences(page_url,word_id) {
     examples.each((i,example) => {
         const russianS = example.attribs['data-bare-ru']
         const englishS = $(example).find('span.tl').text()
-        sentenceArr.push({word_id,translation: allTranslations,russianS,englishS})
+        sentenceArr.push({translation: allTranslations,russianS,englishS,word_id})
 
     })
     return sentenceArr
@@ -34,13 +34,6 @@ catch(error) {
 }
 
 
-const createArr = async (arr) => {
-    let final = []
-    asyncForEach(obj => {
-
-    })
-}
 
 
-
-getSentences('https://en.openrussian.org/ru/%D1%81%D0%B5%D0%B9%D1%87%D0%B0%D1%81')
+module.exports = ruSentences
