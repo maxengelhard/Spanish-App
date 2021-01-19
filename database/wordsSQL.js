@@ -7,6 +7,7 @@ const portugueseWords = require('./portuguese/portugueseWords')
 const japaneseWords = require('./japanese/japaneseWords')
 const mandarinWords = require('./chinese/mandarinWords')
 const koreanWords = require('./korean/koreanWords')
+const arabicWords = require('./arabic/arabicWords')
 
 const db = mysql.createConnection({
     host: process.env.HOST,
@@ -23,7 +24,8 @@ const functions = {
     'wordsportuguese': portugueseWords(),
     'wordsjapanese': japaneseWords(),
     'wordsmandarin': mandarinWords(),
-    'wordskorean': koreanWords()
+    'wordskorean': koreanWords(),
+    'wordsarabic': arabicWords()
 }
 
 

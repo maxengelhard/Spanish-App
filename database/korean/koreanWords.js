@@ -12,7 +12,7 @@ async function getFrequentWords() {
     const {data} = await axios.get(page_url);
     const $ = cheerio.load(data)
     const list = $('#mw-content-text > div.mw-parser-output > table > tbody > tr > td > dl > dd > span > a').slice(0,5000)
-    console.log(list.length)
+    
     list.each((i,word) => {
         const currentWord = $(word).text()
         const verb = null
