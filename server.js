@@ -124,7 +124,7 @@ app.get('/sentences', async (req,res) => {
 })
 
 
-// make words sql
+// russian sql
 app.get('/wordsrussian', wordsSQL)
 
 app.get('/russiansql', russianSQL)
@@ -164,6 +164,8 @@ app.get('/russiansentences', async (req,res) => {
 })
 
 
+// german sql
+
 app.get('/wordsgerman', wordsSQL)
 
 app.get('/german', async (req,res) => {
@@ -179,6 +181,48 @@ app.get('/german', async (req,res) => {
     }
 })
 
+
+
+// italian SQL
+
+app.get('/wordsitalian', wordsSQL)
+
+
+
+// french
+
+app.get('/wordsfrench', wordsSQL)
+
+
+// portugues
+
+app.get('/wordsportuguese', wordsSQL)
+
+// japanese
+
+app.get('/wordsjapanese', wordsSQL)
+
+
+// chinese - traditional mandarian
+
+app.get('/wordsmandarin', wordsSQL)
+
+
+// koren
+
+app.get('/wordskorean', wordsSQL)
+
+
+// arabic
+
+app.get('/wordsarabic', wordsSQL)
+
+
+
+
+// insert sentences to sentences table:  finished
+// spanish
+app.get('/spanishsentence', createSpanishSQL)
 app.get('/conjugate', createVerbsSQL)
 
 
@@ -243,8 +287,7 @@ app.get('/words', async (req,res) => {
 })
 
 
-// // insert sentences to sentences table:  finished
-// app.get('/spanishsentence', createSpanishSQL)
+
 
 app.get('/verbs', async (req,res) => {
     try {

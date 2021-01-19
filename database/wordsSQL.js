@@ -1,6 +1,12 @@
 const mysql = require('mysql')
 const russianWords = require('./russian/russianWords')
 const germanWords = require('./german/germanWords')
+const italianWords = require('./italian/italianWords')
+const frenchWords = require('./french/frenchWords')
+const portugueseWords = require('./portuguese/portugueseWords')
+const japaneseWords = require('./japanese/japaneseWords')
+const mandarinWords = require('./chinese/mandarinWords')
+const koreanWords = require('./korean/koreanWords')
 
 const db = mysql.createConnection({
     host: process.env.HOST,
@@ -11,7 +17,13 @@ const db = mysql.createConnection({
 
 const functions = {
     'wordsrussian': russianWords(),
-    'wordsgerman': germanWords()
+    'wordsgerman': germanWords(),
+    'wordsitalian': italianWords(),
+    'wordsfrench': frenchWords(),
+    'wordsportuguese': portugueseWords(),
+    'wordsjapanese': japaneseWords(),
+    'wordsmandarin': mandarinWords(),
+    'wordskorean': koreanWords()
 }
 
 
