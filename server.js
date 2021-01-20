@@ -8,6 +8,8 @@ const createVerbsSQL = require('./database/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
 const wordsSQL = require('./database/wordsSQL');
 const russianSQL = require('./database/russian/russianSQL')
+const fs = require('fs')
+const twenty16 = './database/frequentWords/2016'
 
 
 
@@ -48,7 +50,7 @@ app.post('/insert', async (req,res) => {
             return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
         },'')
         const arr = [id,questionStr,solutionStr]
-        let sql = 'INSERT INTO day VALUES (?);'
+        let sql = 'INSERT INTO dayes VALUES (?);'
         db.query(sql,[arr], (err,result) => {
             if (err) throw err;
         })
@@ -78,7 +80,7 @@ app.patch('/update', async (req,res) => {
             return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
         },'')
         const arr = [id,questionStr,solutionStr]
-        let sql = 'REPLACE INTO day VALUES (?);'
+        let sql = 'REPLACE INTO dayes VALUES (?);'
         db.query(sql,[arr], (err,result) => {
             if (err) throw err;
         })
@@ -98,7 +100,7 @@ app.patch('/update', async (req,res) => {
 
 app.get('/completed', async (req,res) => {
     try {
-        const sql="SELECT dayID FROM day"
+        const sql="SELECT dayID FROM dayes"
         db.query(sql, (err, result) => {
             if (err) throw err;
             res.json(result)
@@ -213,9 +215,42 @@ app.get('/wordsmandarin', wordsSQL)
 app.get('/wordskorean', wordsSQL)
 
 
-// arabic
+app.get('/languagewords',async (req,res) => {
+        const sql="SELECT * FROM languages"
+        db.query(sql, async (err,result) => {
+            const execpt = await result.reduce((acum,obj) => {
+                if (obj.words ===1) {
+                    acum.push(obj.lang)
+                }
+                return acum
+            },[])
+            fs.readdir(twenty16, (err,files) => {
+            // execptions
+            const reduced = files.reduce((acum,lang) => {
+                if (!execpt.includes(lang)) {
+                    app.get(`/words${lang}`,wordsSQL)
+                    acum.push(lang)
+                }
+                return acum
+            },[])
+            res.json(reduced)
+            })
+        })
+    })
+// to get all of them from 2016
 
-app.get('/wordsarabic', wordsSQL)
+app.get('/languages', async (req,res) => {
+    try{   
+        const sql="SELECT lang FROM languages"
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result.map(obj => obj.lang))
+        })
+
+    }catch(error) {
+        console.log(error)
+    }
+})
 
 
 
@@ -245,7 +280,7 @@ app.get('/questions', async (req,res) => {
 // to get the lessons
 app.get('/lesson', async (req,res) => {
     try {
-        let sql = "SELECT * FROM day;"
+        let sql = "SELECT * FROM dayes;"
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -257,7 +292,7 @@ app.get('/lesson', async (req,res) => {
 })
 
 // to read for the words and their sentneces each day: 10 words a day
-app.get(`/day:day`, async (req,res) => {
+app.get(`/dayes:day`, async (req,res) => {
     try {
     const day = req.params.day;
     let sql =  "SELECT * FROM words INNER JOIN sentences ON words.word_id = sentences.word_id WHERE sentences.word_id >=? AND sentences.word_id<?;"

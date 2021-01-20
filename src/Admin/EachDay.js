@@ -21,7 +21,7 @@ const EachDay = ({match}) => {
         // to change the sentences
         const fetchData = async () => {
         if (day >= 0) {
-        await fetch(`/day${day+1}`)
+        await fetch(`/dayes${day+1}`)
         .then(res => res.json())
         .then(data => setSentences(data))
 
