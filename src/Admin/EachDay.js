@@ -6,7 +6,9 @@ import higlight from './highlight'
 
 
 const EachDay = ({match}) => {
-    const day = parseInt(match.url.slice(10))
+    const last = match.url.lastIndexOf('/')
+    const lang = match.url.slice(7,last)
+    const day = parseInt(match.url.slice(last+4))
     let questionArr = []
     const [finished, setFinished] = useState([])
     for (let i=0; i<500;i++) {
@@ -21,12 +23,12 @@ const EachDay = ({match}) => {
         // to change the sentences
         const fetchData = async () => {
         if (day >= 0) {
-        await fetch(`/dayes${day+1}`)
+        await fetch(`/day${lang}${day+1}`)
         .then(res => res.json())
         .then(data => setSentences(data))
 
         // to change questions if we have any
-        await fetch('/questions')
+        await fetch(`/questions${lang}`)
         .then(res => res.json())
         .then(data => {
             // to change based on the day
@@ -52,7 +54,7 @@ const EachDay = ({match}) => {
      
         // to change and check if the day is already in the SQL 
         //if it is then we are updating not inserting into SQLs
-        await fetch('/lesson')
+        await fetch(`/lesson${lang}`)
         .then(res => res.json())
         .then(data => {
             let newArr = Array(500).fill(false)
@@ -61,7 +63,7 @@ const EachDay = ({match}) => {
         })
 
         // this will allow me to higlight all the words we've already had
-        await fetch('/words')
+        await fetch(`/words${lang}`)
         .then(res => res.json())
         .then(data => {
             // slice the array from zero all the way to the new day
@@ -70,7 +72,7 @@ const EachDay = ({match}) => {
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.slice(0,(day+1)*10).filter(obj => obj.vID !== null)
             
-            fetch('/verbs')
+            fetch(`/verbs${lang}`)
             .then(res => res.json())
             .then(data => {
                 let verbArr = []
@@ -142,7 +144,7 @@ const EachDay = ({match}) => {
 
     // send lesson
     const sendLesson = () => {
-        fetch('/insert', {
+        fetch(`/insert${lang}`, {
             headers: {
                 'Content-type': 'application/json'
             },
@@ -152,7 +154,7 @@ const EachDay = ({match}) => {
     }
 
     const updateLesson = () => {
-        fetch('/update', {
+        fetch(`/update${lang}`, {
             headers: {
                 'Content-type': 'application/json'
             },
@@ -188,6 +190,7 @@ const EachDay = ({match}) => {
         <p>{item.englishS}</p>
         </td>
         <td className={submited}>
+            {/* check to see if we have translated it yet */}
         <p>{higlight(item.spanishS,learnedWords)}</p>
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
@@ -202,7 +205,7 @@ const EachDay = ({match}) => {
         editQ={editQ} 
         />
         { lastSub-1 ===index ?
-        <Link to={`/admin`}>
+        <Link to={`/admin/${lang}`}>
     <button onClick={() => {
         !finished[day] ? sendLesson() : updateLesson()
         }}>

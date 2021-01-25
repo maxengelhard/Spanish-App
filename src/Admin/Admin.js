@@ -1,11 +1,14 @@
 import React from 'react'
 import {BrowserRouter as Router, Route } from 'react-router-dom'
 import {AdminHome,Routes} from './AdminHome'
-// import LanguageWords from '../Components/SetWords'
+import Languages from './Languages'
 
 
-const AdminJS = () => {
+
+const AdminJS = ({match}) => {
     // to make all the admins
+    const lang = match.url.slice(7)
+   
     return (
     
     <div style={{display:'block', height: '100%'}}>
@@ -13,8 +16,8 @@ const AdminJS = () => {
     {
     <Router>
     <div className='dayButtons'>
-    <Route path='/admin' exact component={AdminHome}/>
-    <Routes />
+    <Route path={`/admin/${lang}`} exact component={AdminHome}/>
+    <Routes lang={lang}/>
     </div>
     </Router>
     }

@@ -4,10 +4,11 @@ import EachDay from './EachDay'
 
 let routes = new Array(500).fill([])
 
-const AdminHome = () => {
+const AdminHome = ({match}) => {
+    const lang = match.url.slice(7)
     const [completed,setCompleted] = useState(false)
     useEffect(() => {
-        fetch('/completed')
+        fetch(`/completed${lang}`)
         .then(res => res.json())
         .then(data => {
             let empty = new Array(500).fill(false)
@@ -21,7 +22,7 @@ const AdminHome = () => {
             !completed ? <div className ='spin'></div> :
             completed.map((complete,i) => {
                 const green = complete ? 'active' : null
-                return <Link to={`/admin/day${i}`} key={i}>
+                return <Link to={`/admin/${lang}/day${i}`} key={i}>
                     <button className={`adminBtn ${green}`}>Day {i}</button>
                     </Link>
             })
@@ -31,11 +32,11 @@ const AdminHome = () => {
     )
 }
 
-const Routes = () => {
+const Routes = ({lang}) => {
     return (
         <div>
             {routes.map((route, i) => {
-                return <Route path={`/admin/day${i}`} key={i} component={EachDay} />
+                return <Route path={`/admin/${lang}/day${i}`} key={i} component={EachDay} />
             })}
         </div>
     )

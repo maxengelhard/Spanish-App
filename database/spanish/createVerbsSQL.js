@@ -1,6 +1,6 @@
 const mysql = require('mysql')
 const conjugateVerbs = require('./conjugateVerbs')
-const asyncForEach = require('./asyncForEach')
+const asyncForEach = require('../asyncForEach')
 
 const db = mysql.createConnection({
     host: process.env.HOST,

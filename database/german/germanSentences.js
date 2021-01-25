@@ -7,9 +7,9 @@ async function deSentences(page_url,word_id) {
     let sentenceArr = []
     const {data} = await axios.get(page_url);
     const $ = cheerio.load(data)
-    const translation = $('div.hom.sense').find('a.ref')
+    const verb = $('div.hom.sense').find('a.ref')
     
-    console.log(translation.text())
+    console.log(verb.text())
     // let allTranslations = ''
     // translation.each((i,text) => {
     //     if (i===translation.length-1) {

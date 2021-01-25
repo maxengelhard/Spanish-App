@@ -3,13 +3,14 @@ const mysql = require('mysql')
 const dotenv = require('dotenv');
 dotenv.config()
 const cors = require('cors');
-const createSpanishSQL = require('./database/createSpanishSQL')
-const createVerbsSQL = require('./database/createVerbsSQL')
+const createSpanishSQL = require('./database/spanish/createSpanishSQL')
+const createVerbsSQL = require('./database/spanish/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
 const wordsSQL = require('./database/wordsSQL');
 const russianSQL = require('./database/russian/russianSQL')
 const fs = require('fs')
 const twenty16 = './database/frequentWords/2016'
+const languages = require('./languages')
 
 
 
@@ -38,98 +39,13 @@ app.use(express.urlencoded({extended: false}))
 // app.use(express.static('public'))
 
 // after each submisson create a lesson and put in all the quesitons
-app.post('/insert', async (req,res) => {
-    try {
-        const id = req.body.day
-        const {lesson,solution}  = req.body
-        const questions = lesson.map(obj => [obj.id,obj.question])
-        const questionStr = lesson.reduce((str, obj) => {
-            return str + obj.question + '<p>'
-        },'')
-        const solutionStr = solution.reduce((str, obj) => {
-            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
-        },'')
-        const arr = [id,questionStr,solutionStr]
-        let sql = 'INSERT INTO dayes VALUES (?);'
-        db.query(sql,[arr], (err,result) => {
-            if (err) throw err;
-        })
-        sql = 'INSERT INTO questions VALUES ?;'
-        db.query(sql,[questions], (err,result) => {
-            if (err) throw err;
-        })
-        
-    }
-    catch(err) {
-        console.log(err)
-    }
-    
-})
 
-
-// to update lessons and questions
-app.patch('/update', async (req,res) => {
-    try {
-        const id = req.body.day
-        const {lesson,solution} = req.body
-        const questions = lesson.map(obj => [obj.id,obj.question])
-        const questionStr = lesson.reduce((str, obj) => {
-            return str + obj.question + '<p>'
-        },'')
-        const solutionStr = solution.reduce((str, obj) => {
-            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
-        },'')
-        const arr = [id,questionStr,solutionStr]
-        let sql = 'REPLACE INTO dayes VALUES (?);'
-        db.query(sql,[arr], (err,result) => {
-            if (err) throw err;
-        })
-        sql = 'REPLACE INTO questions VALUES ?;'
-        db.query(sql,[questions], (err,result) => {
-            if (err) throw err;
-        })
-    }
-    catch(err) {
-        console.log(err)
-    }
-})
-
-
-
-// to see what days have been completed
-
-app.get('/completed', async (req,res) => {
-    try {
-        const sql="SELECT dayID FROM dayes"
-        db.query(sql, (err, result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
-
-
-app.get('/sentences', async (req,res) => {
-    try {
-        let sql = "SELECT * FROM sentences"
-        db.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(err) {
-        console.log(err)
-    }
-})
-
+//////////////////////////// OTHER LANGUAGES
 
 // russian sql
-app.get('/wordsrussian', wordsSQL)
+app.get('/topwordsrussian', wordsSQL)
 
-app.get('/russiansql', russianSQL)
+app.get('/toprussiansql', russianSQL)
 
 // select russian words
 app.get('/russian',async (req,res) => {
@@ -150,14 +66,7 @@ app.get('/russiansentences', async (req,res) => {
         const sql="SELECT * FROM sentencesrussian"
         db.query(sql,(err,result) => {
             if (err) throw err;
-            const unqiues = [...new Set(result.map(obj => obj.word_id))]
-            let cont = false
-            unqiues.forEach((num,i,arr) => {
-                if (arr[i+1] !== num+1) {
-                    cont = num
-                }
-            })
-            res.json(unqiues)
+            res.json(result)
         })
     }
     catch(error) {
@@ -166,9 +75,12 @@ app.get('/russiansentences', async (req,res) => {
 })
 
 
+app.get('/sentencesrussian', translateSentences)
+
+
 // german sql
 
-app.get('/wordsgerman', wordsSQL)
+app.get('/topwordsgerman', wordsSQL)
 
 app.get('/german', async (req,res) => {
     try {
@@ -187,34 +99,34 @@ app.get('/german', async (req,res) => {
 
 // italian SQL
 
-app.get('/wordsitalian', wordsSQL)
+app.get('/topwordsitalian', wordsSQL)
 
 
 
 // french
 
-app.get('/wordsfrench', wordsSQL)
+app.get('/topwordsfrench', wordsSQL)
 
 
 // portugues
 
-app.get('/wordsportuguese', wordsSQL)
+app.get('/topwordsportuguese', wordsSQL)
 
 // japanese
 
-app.get('/wordsjapanese', wordsSQL)
+app.get('/topwordsjapanese', wordsSQL)
 
 
 // chinese - traditional mandarian
 
-app.get('/wordsmandarin', wordsSQL)
+app.get('/topwordsmandarin', wordsSQL)
 
 
 // koren
 
-app.get('/wordskorean', wordsSQL)
+app.get('/topwordskorean', wordsSQL)
 
-
+// to get all other languages
 app.get('/languagewords',async (req,res) => {
         const sql="SELECT * FROM languages"
         db.query(sql, async (err,result) => {
@@ -237,8 +149,11 @@ app.get('/languagewords',async (req,res) => {
             })
         })
     })
-// to get all of them from 2016
 
+
+
+// to display a list of all languages
+// I can now itereate over this
 app.get('/languages', async (req,res) => {
     try{   
         const sql="SELECT lang FROM languages"
@@ -252,7 +167,7 @@ app.get('/languages', async (req,res) => {
     }
 })
 
-
+////////////////////////////// END OF OTHER LANGUAGES
 
 
 // insert sentences to sentences table:  finished
@@ -264,9 +179,43 @@ app.get('/conjugate', createVerbsSQL)
 // to see all the questions we have
 // when I click on each day I can then already see the questions I have
 
-app.get('/questions', async (req,res) => {
+
+languages.forEach(lang => {
+
+    // to read for the words and their sentneces each day: 10 words a day
+    app.get(`/day${lang}:day`, async (req,res) => {
+        try {
+        const day = req.params.day;
+        let sql =  `SELECT * FROM words${lang} INNER JOIN sentences${lang} ON words${lang}.word_id = sentences${lang}.word_id WHERE sentences${lang}.word_id >=? AND sentences${lang}.word_id<?;`
+        db.query(sql,[(day*10)-10,day*10],(err,result) => {
+            if (err) throw err;
+            res.json(result);
+        })
+        }
+        catch(error) {
+            console.log(error)
+
+        }
+    })
+
+
+    // this will allow me to see all the words
+    app.get(`/words${lang}`, async (req,res) => {
+        try {
+            let sql = `SELECT * FROM words${lang}`
+            db.query(sql,(err,result) => {
+                if (err) throw err;
+                res.json(result)
+            })
+        }
+        catch(error) {
+            console.log(error)
+        }
+    })
+
+app.get(`/questions${lang}`, async (req,res) => {
     try {
-        let sql = "SELECT * FROM questions;"
+        let sql = `SELECT * FROM questions${lang};`
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -278,9 +227,109 @@ app.get('/questions', async (req,res) => {
 })
 
 // to get the lessons
-app.get('/lesson', async (req,res) => {
+app.get(`/lesson${lang}`, async (req,res) => {
     try {
-        let sql = "SELECT * FROM dayes;"
+        let sql = `SELECT * FROM day${lang};`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+    // to insert the questions 
+    app.post(`/insert${lang}`, async (req,res) => {
+    try {
+        const id = req.body.day
+        const {lesson,solution}  = req.body
+        const questions = lesson.map(obj => [obj.id,obj.question])
+        const questionStr = lesson.reduce((str, obj) => {
+            return str + obj.question + '<p>'
+        },'')
+        const solutionStr = solution.reduce((str, obj) => {
+            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
+        },'')
+        const arr = [id,questionStr,solutionStr]
+        let sql = `INSERT INTO day${lang} VALUES (?);`
+        db.query(sql,[arr], (err,result) => {
+            if (err) throw err;
+        })
+        sql = `INSERT INTO questions${lang} VALUES ?;`
+        db.query(sql,[questions], (err,result) => {
+            if (err) throw err;
+        })
+        
+    }
+    catch(err) {
+        console.log(err)
+    }
+    
+})
+
+
+// to update lessons and questions
+app.patch(`/update${lang}`, async (req,res) => {
+    try {
+        const id = req.body.day
+        const {lesson,solution} = req.body
+        const questions = lesson.map(obj => [obj.id,obj.question])
+        const questionStr = lesson.reduce((str, obj) => {
+            return str + obj.question + '<p>'
+        },'')
+        const solutionStr = solution.reduce((str, obj) => {
+            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
+        },'')
+        const arr = [id,questionStr,solutionStr]
+        let sql = `REPLACE INTO day${lang} VALUES (?);`
+        db.query(sql,[arr], (err,result) => {
+            if (err) throw err;
+        })
+        sql = `REPLACE INTO questions${lang} VALUES ?;`
+        db.query(sql,[questions], (err,result) => {
+            if (err) throw err;
+        })
+    }
+    catch(err) {
+        console.log(err)
+    }
+})
+
+
+
+// to see what days have been completed
+
+app.get(`/completed${lang}`, async (req,res) => {
+    try {
+        const sql=`SELECT dayID FROM day${lang}`
+        db.query(sql, (err, result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
+app.get(`/sentences${lang}`, async (req,res) => {
+    try {
+        let sql = `SELECT * FROM sentences${lang}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(err) {
+        console.log(err)
+    }
+})
+
+app.get(`/verbs${lang}`, async (req,res) => {
+    try {
+        let sql=`SELECT * FROM verbs${lang};`
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -291,51 +340,14 @@ app.get('/lesson', async (req,res) => {
     }
 })
 
-// to read for the words and their sentneces each day: 10 words a day
-app.get(`/dayes:day`, async (req,res) => {
-    try {
-    const day = req.params.day;
-    let sql =  "SELECT * FROM words INNER JOIN sentences ON words.word_id = sentences.word_id WHERE sentences.word_id >=? AND sentences.word_id<?;"
-    db.query(sql,[(day*10)-10,day*10],(err,result) => {
-        if (err) throw err;
-        res.json(result);
-    })
-    }
-    catch(error) {
-        console.log(error)
-
-    }
-})
-
-// this will allow me to see all the words
-app.get('/words', async (req,res) => {
-    try {
-        let sql = "SELECT * FROM words"
-        db.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
 })
 
 
 
 
-app.get('/verbs', async (req,res) => {
-    try {
-        let sql="SELECT * FROM verbs;"
-        db.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
+
+
+
 
 // // push join verbs and used words
 // app.get('/usedwords', async (req,res) => {
@@ -379,7 +391,7 @@ app.get('/verbs', async (req,res) => {
 // })
 
 
-// app.get('/sendtranslation', translateSentences)
+app.get('/sendtranslation', translateSentences)
 
 
 

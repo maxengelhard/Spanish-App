@@ -1,7 +1,7 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
-const getSentences = require('./sentences')
-const asyncForEach = require('./asyncForEach')
+const getSentences = require('../sentences')
+const asyncForEach = require('../asyncForEach')
 
 const page_url = `https://en.wiktionary.org/wiki/User:Matthias_Buchmeier/Spanish_frequency_list-1-5000`
 const dict_url = `https://www.spanishdict.com/translate/`

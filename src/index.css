@@ -372,10 +372,22 @@ textarea {
   padding: 10px;
 }
 .language {
+  display: flex;
   width: 80%;
   padding: 0px 0px 0px 10px;
   text-align: left;
   height: 45px;
   font-size: 16px;
   margin: 0px 10% 10px 10%;
+}
+
+.language img {
+  margin: auto;
+  height: 35px;
+  width: 35px;
+}
+
+.language p {
+  margin: auto;
+  padding-left: 10px;
 }
