@@ -12,11 +12,11 @@ const AdminJS = ({match}) => {
     return (
     
     <div style={{display:'block', height: '100%'}}>
-        <h1>Admin</h1>
     {
     <Router>
     <div className='dayButtons'>
     <Route path={`/admin/${lang}`} exact component={AdminHome}/>
+    <Route path={'/admin'} exact component={Languages}/>
     <Routes lang={lang}/>
     </div>
     </Router>

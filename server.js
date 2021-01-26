@@ -8,6 +8,9 @@ const createVerbsSQL = require('./database/spanish/createVerbsSQL')
 const translateSentences = require('./database/translateSentences')
 const wordsSQL = require('./database/wordsSQL');
 const russianSQL = require('./database/russian/russianSQL')
+const russianVerbs = require('./database/russian/russianVerbSQL')
+const russianNouns = require('./database/russian/nounSQL')
+const russianAdjectives = require('./database/russian/adjective')
 const fs = require('fs')
 const twenty16 = './database/frequentWords/2016'
 const languages = require('./languages')
@@ -45,35 +48,29 @@ app.use(express.urlencoded({extended: false}))
 // russian sql
 app.get('/topwordsrussian', wordsSQL)
 
-app.get('/toprussiansql', russianSQL)
+app.get('/russiansql', russianSQL)
+
+app.get('/russianverbssql', russianVerbs)
+
+app.get('/russiannounssql', russianNouns)
+
+app.get('/russianadjsql', russianAdjectives)
+
+app.get('/russiangrammar', async (req,res) => {
+    try {
+        const sql ="SELECT grammar, word FROM wordsrussian"
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
 // select russian words
-app.get('/russian',async (req,res) => {
-    try {
-        const sql = "SELECT * FROM wordsrussian"
-        db.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
-
-app.get('/russiansentences', async (req,res) => {
-    try {
-        const sql="SELECT * FROM sentencesrussian"
-        db.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result)
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
-
 
 app.get('/sentencesrussian', translateSentences)
 
@@ -336,6 +333,7 @@ app.get(`/verbs${lang}`, async (req,res) => {
         })
     }
     catch(error) {
+        res.json([])
         console.log(error)
     }
 })

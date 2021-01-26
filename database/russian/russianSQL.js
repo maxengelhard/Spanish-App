@@ -11,7 +11,7 @@ const db = mysql.createConnection({
 const russianSQL = async (req,res) => {
     try {
         // get all the words from russian
-        let sql="SELECT * FROM wordsru"
+        let sql="SELECT * FROM wordsrussian"
         db.query(sql, async (err,words) => {
         if (err) throw err;
         let day = 0;
@@ -20,7 +20,7 @@ const russianSQL = async (req,res) => {
             const exampleObjs = await examples(section)
             const values = exampleObjs.map(obj => Object.values(obj))
             day++
-            sql="REPLACE INTO sentencesru (way,russianS,englishS,word_id) VALUES ?"
+            sql="REPLACE INTO sentencesrussian (way,russianS,englishS,word_id) VALUES ?"
             db.query(sql,[values],(err,result) => {
                 if (err) throw err;
                 console.log(`day ${day} finsihed`)

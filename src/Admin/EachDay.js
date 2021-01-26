@@ -101,7 +101,7 @@ const EachDay = ({match}) => {
     fetchData()
     return 0;
 
-    }, [day])
+    }, [lang,day])
 
 
     const addQ = (newQuestion) => {
@@ -191,7 +191,7 @@ const EachDay = ({match}) => {
         </td>
         <td className={submited}>
             {/* check to see if we have translated it yet */}
-        <p>{higlight(item.spanishS,learnedWords)}</p>
+        <p>{higlight(item[`${lang}S`],learnedWords)}</p>
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
