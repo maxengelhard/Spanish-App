@@ -58,13 +58,56 @@ app.get('/russianadjsql', russianAdjectives)
 
 app.get('/russiangrammar', async (req,res) => {
     try {
-        const sql ="SELECT grammar, word FROM wordsrussian"
+        const sql ="SELECT grammar, word, word_id FROM wordsrussian"
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
         })
 
     }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+app.get('/russianwordids', async (req,res) => {
+    try {
+        let sql="SELECT grammar,word,word_id FROM wordsrussian"
+        db.query(sql,(err,words) => {
+            if (err) throw err;
+            
+        const nouns = words.filter(obj => (obj.grammar === 'substantive' || obj.grammar ==='s')).map((obj,i) => [obj.word_id,i])
+        const adjectives = words.filter(obj => (obj.grammar.includes('adjectival') || obj.grammar ==='adjective')).map((obj,i) => [obj.word_id,i])
+        const verbs = words.filter(obj => obj.grammar === 'verb').map((obj,i) => [obj.word_id,i])
+
+        // for each of them add in the word id
+        nouns.forEach(arr => {
+        sql=`UPDATE nounsrussian SET word_id=${arr[0]} WHERE nID=${arr[1]}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            console.log(`Noun ${arr[1]} done`)
+        })
+        })
+        adjectives.forEach(arr => {
+        sql=`UPDATE adjectivesrussian SET word_id=${arr[0]} WHERE aID=${arr[1]}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            console.log(`Adjective ${arr[1]} done`)
+        })
+        })
+        verbs.forEach(arr => {
+        sql=`UPDATE verbsrussian SET word_id=${arr[0]} WHERE vID=${arr[1]}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            console.log(`Verb ${arr[1]} done`)
+        })
+        })
+
+        res.json('finsihed word ids')
+        
+    })
+
+}
     catch(error) {
         console.log(error)
     }
@@ -212,7 +255,7 @@ languages.forEach(lang => {
 
 app.get(`/questions${lang}`, async (req,res) => {
     try {
-        let sql = `SELECT * FROM questions${lang};`
+        let sql = `SELECT * FROM questions${lang}`
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -249,11 +292,11 @@ app.get(`/lesson${lang}`, async (req,res) => {
             return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
         },'')
         const arr = [id,questionStr,solutionStr]
-        let sql = `INSERT INTO day${lang} VALUES (?);`
+        let sql = `REPLACE INTO day${lang} VALUES (?);`
         db.query(sql,[arr], (err,result) => {
             if (err) throw err;
         })
-        sql = `INSERT INTO questions${lang} VALUES ?;`
+        sql = `REPLACE INTO questions${lang} VALUES ?;`
         db.query(sql,[questions], (err,result) => {
             if (err) throw err;
         })
@@ -294,12 +337,38 @@ app.patch(`/update${lang}`, async (req,res) => {
 })
 
 
+app.patch(`/setqform${lang}:day`, async (req,res) => {
+    try {
+        const {qform,day} = req.body
+        qform.forEach(translation => {
+            // to escape the apstrophys
+            const escape = translation[1].replace(/'/g, "\\'")
+            const sql=`UPDATE sentences${lang} SET qform='${escape}' WHERE id=${translation[0]}`
+            db.query(sql,(err,result) => {
+                if (err) throw err;
+            })
+        })
+
+        const finishedSql=`INSERT INTO day${lang} (dayID) VALUES (${day})`
+        db.query(finishedSql,(err,result) => {
+            if (err) throw err;
+        })
+
+
+
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
 
 // to see what days have been completed
 
 app.get(`/completed${lang}`, async (req,res) => {
     try {
-        const sql=`SELECT dayID FROM day${lang}`
+        const sql=`SELECT dayID  FROM day${lang}`
         db.query(sql, (err, result) => {
             if (err) throw err;
             res.json(result)

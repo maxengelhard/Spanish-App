@@ -18,4 +18,4 @@ const higlight = (str,learnedWords) => {
 
 }
 
-module.exports = higlight
+module.exports = higlight 

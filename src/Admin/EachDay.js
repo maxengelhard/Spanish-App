@@ -3,6 +3,10 @@ import NewQuestion from './NewQuestionForm'
 import Lesson from './Lesson'
 import {Link} from 'react-router-dom'
 import higlight from './highlight'
+import underScore from './underscore'
+import translateThis from './translateThis'
+
+
 
 
 const EachDay = ({match}) => {
@@ -23,9 +27,67 @@ const EachDay = ({match}) => {
         // to change the sentences
         const fetchData = async () => {
         if (day >= 0) {
-        await fetch(`/day${lang}${day+1}`)
+        // check if we've done something that day
+        // if we haven't then update the qforms so we only have to do it once    
+        await fetch(`/completed${lang}`)
         .then(res => res.json())
-        .then(data => setSentences(data))
+        .then(completed => {
+        const thisDay = completed.map(obj => obj.dayID).includes(day)
+        // this will allow me to higlight all the words we've already had
+        fetch(`/words${lang}`)
+        .then(res => res.json())
+        .then(data => {
+            // slice the array from zero all the way to the new day
+            const usedWords = data.slice(0,(day+1)*10).map(obj => obj.word)
+        // this will check to see if we have a verb
+        // if we do we want the last index of that and all other verbs will be pushed into to usedWords
+            const verbId = data.slice(0,(day+1)*10).filter(obj => obj.vID !== null)
+            
+            fetch(`/verbs${lang}`)
+            .then(res => res.json())
+            .then(verbs => {
+                let verbArr = []
+                // get all the data of the vId's
+                // itereate over the verbs we have the index is the verb id
+                verbId.forEach(obj => {
+                    const arr = Object.values(verbs[obj.vID]).slice(1)
+                    verbArr.push(arr)
+
+                })
+        
+                // to make the verbs one big array
+                const cleanVerbs = [].concat.apply([], verbArr)
+                const ultimate = usedWords.concat(cleanVerbs)
+                setLearnedWords(ultimate)
+
+
+                fetch(`/day${lang}${day+1}`)
+                .then(res => res.json())
+                .then(async (sentences) => {
+                    
+                setSentences(sentences)
+
+                const qform = await Promise.all(sentences.map(async (obj) => [obj.id,await translateThis(underScore(obj[`${lang}S`],ultimate))]))
+        
+                // if this day is not true then we need to set the qform to something
+                if (!thisDay && lang !=='spanish') {
+                    fetch(`/setqform${lang}${day}`, {
+                    headers: {
+                    'Content-type': 'application/json'
+                    },
+                    method: 'PATCH',
+                    body: JSON.stringify({day, qform})
+                    })
+
+                }
+            })
+            })
+        })
+
+    })
+
+
+        
 
         // to change questions if we have any
         await fetch(`/questions${lang}`)
@@ -60,35 +122,6 @@ const EachDay = ({match}) => {
             let newArr = Array(500).fill(false)
             data.forEach(day => newArr.splice(day.dayID,1,true))
             setFinished(newArr)
-        })
-
-        // this will allow me to higlight all the words we've already had
-        await fetch(`/words${lang}`)
-        .then(res => res.json())
-        .then(data => {
-            // slice the array from zero all the way to the new day
-            const usedWords = data.slice(0,(day+1)*10).map(obj => obj.word)
-        // this will check to see if we have a verb
-        // if we do we want the last index of that and all other verbs will be pushed into to usedWords
-            const verbId = data.slice(0,(day+1)*10).filter(obj => obj.vID !== null)
-            
-            fetch(`/verbs${lang}`)
-            .then(res => res.json())
-            .then(data => {
-                let verbArr = []
-                // get all the data of the vId's
-                // itereate over the verbs we have the index is the verb id
-                verbId.forEach(obj => {
-                    const arr = Object.values(data[obj.vID]).slice(1)
-                    verbArr.push(arr)
-
-                })
-        
-                // to make the verbs one big array
-                const cleanVerbs = [].concat.apply([], verbArr)
-                const ultimate = usedWords.concat(cleanVerbs)
-                setLearnedWords(ultimate)
-            })
         })
 
         
@@ -142,6 +175,7 @@ const EachDay = ({match}) => {
 
     const uniqueWords = learnedWords.slice((day*10),(day+1)*10)
 
+
     // send lesson
     const sendLesson = () => {
         fetch(`/insert${lang}`, {
@@ -162,6 +196,7 @@ const EachDay = ({match}) => {
            body: JSON.stringify({day, lesson: questions[day], solution: sentences})
         })
     }
+
     
     return (
     loading ? <div className="spin"></div> :
@@ -192,6 +227,7 @@ const EachDay = ({match}) => {
         <td className={submited}>
             {/* check to see if we have translated it yet */}
         <p>{higlight(item[`${lang}S`],learnedWords)}</p>
+        {/* this is the form. if it's spanish we've already translated it  else translate the sentences*/}
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?

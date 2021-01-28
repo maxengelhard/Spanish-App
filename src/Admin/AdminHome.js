@@ -43,7 +43,7 @@ const Routes = ({lang}) => {
     return (
         <div>
             {routes.map((route, i) => {
-                return <Route path={`/admin/${lang}/day${i}`} key={i} component={EachDay} />
+                return <Route path={`/admin/${lang}/day${i}`} key={i} exact component={EachDay} />
             })}
         </div>
     )
