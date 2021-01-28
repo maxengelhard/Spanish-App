@@ -13,7 +13,7 @@ const db = mysql.createConnection({
 const russianSQL = async (req,res) => {
     try {
         // get all the words from russian
-        let sql="SELECT grammar, word,word_id FROM wordsrussian"
+        let sql="SELECT grammar, word FROM wordsrussian"
         db.query(sql, async (err,words) => {
             // filter only the verbs
         const verbs = words.filter(obj => obj.grammar === 'verb')
@@ -22,11 +22,9 @@ const russianSQL = async (req,res) => {
         await asyncForEach(verbs, async (obj) => {
             count++
             const verb = obj.word
-            const word_id = obj.word_id
             const url = 'https://en.openrussian.org/ru/' + encodeURI(verb)
             const result = await conjugatethis(url)
             result.unshift(count)
-            result.push(word_id)
             const values = [result]
         sql = 'REPLACE INTO verbsrussian VALUES ?'
         db.query(sql,[values], async (err,result) => {

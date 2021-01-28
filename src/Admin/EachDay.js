@@ -14,7 +14,6 @@ const EachDay = ({match}) => {
     const lang = match.url.slice(7,last)
     const day = parseInt(match.url.slice(last+4))
     let questionArr = []
-    const [finished, setFinished] = useState([])
     for (let i=0; i<500;i++) {
         questionArr.push([])
         }
@@ -31,21 +30,21 @@ const EachDay = ({match}) => {
         // if we haven't then update the qforms so we only have to do it once    
         await fetch(`/completed${lang}`)
         .then(res => res.json())
-        .then(completed => {
+        .then(async (completed) => {
         const thisDay = completed.map(obj => obj.dayID).includes(day)
         // this will allow me to higlight all the words we've already had
-        fetch(`/words${lang}`)
+        await fetch(`/words${lang}${day+1}`)
         .then(res => res.json())
-        .then(data => {
+        .then(async (data) => {
             // slice the array from zero all the way to the new day
-            const usedWords = data.slice(0,(day+1)*10).map(obj => obj.word)
+            const usedWords = data.map(obj => obj.word)
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
-            const verbId = data.slice(0,(day+1)*10).filter(obj => obj.vID !== null)
+            const verbId = data.filter(obj => obj.vID !== null)
             
-            fetch(`/verbs${lang}`)
+           await fetch(`/verbs${lang}`)
             .then(res => res.json())
-            .then(verbs => {
+            .then(async (verbs) => {
                 let verbArr = []
                 // get all the data of the vId's
                 // itereate over the verbs we have the index is the verb id
@@ -61,16 +60,16 @@ const EachDay = ({match}) => {
                 setLearnedWords(ultimate)
 
 
-                fetch(`/day${lang}${day+1}`)
+               await fetch(`/day${lang}${day+1}`)
                 .then(res => res.json())
                 .then(async (sentences) => {
                     
                 setSentences(sentences)
 
-                const qform = await Promise.all(sentences.map(async (obj) => [obj.id,await translateThis(underScore(obj[`${lang}S`],ultimate))]))
         
                 // if this day is not true then we need to set the qform to something
                 if (!thisDay && lang !=='spanish') {
+                const qform = await Promise.all(sentences.map(async (obj) => [obj.id,await translateThis(underScore(obj[`${lang}S`],ultimate))]))
                     fetch(`/setqform${lang}${day}`, {
                     headers: {
                     'Content-type': 'application/json'
@@ -116,15 +115,6 @@ const EachDay = ({match}) => {
      
         // to change and check if the day is already in the SQL 
         //if it is then we are updating not inserting into SQLs
-        await fetch(`/lesson${lang}`)
-        .then(res => res.json())
-        .then(data => {
-            let newArr = Array(500).fill(false)
-            data.forEach(day => newArr.splice(day.dayID,1,true))
-            setFinished(newArr)
-        })
-
-        
     
 
         setLoading(false)
@@ -177,16 +167,6 @@ const EachDay = ({match}) => {
 
 
     // send lesson
-    const sendLesson = () => {
-        fetch(`/insert${lang}`, {
-            headers: {
-                'Content-type': 'application/json'
-            },
-            method: 'POST',
-            body: JSON.stringify({day, lesson: questions[day], solution: sentences})
-        })
-    }
-
     const updateLesson = () => {
         fetch(`/update${lang}`, {
             headers: {
@@ -242,10 +222,8 @@ const EachDay = ({match}) => {
         />
         { lastSub-1 ===index ?
         <Link to={`/admin/${lang}`}>
-    <button onClick={() => {
-        !finished[day] ? sendLesson() : updateLesson()
-        }}>
-        {!finished[day] ? 'Send Lesson' : 'Update Lesson'}
+    <button onClick={() => { updateLesson()}}>
+     Update Lesson
     </button>
     </Link> : null
         }

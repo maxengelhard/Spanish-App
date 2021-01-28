@@ -240,9 +240,10 @@ languages.forEach(lang => {
 
 
     // this will allow me to see all the words
-    app.get(`/words${lang}`, async (req,res) => {
+    app.get(`/words${lang}:day`, async (req,res) => {
         try {
-            let sql = `SELECT * FROM words${lang}`
+            const {day} = req.params
+            let sql = `SELECT * FROM words${lang} WHERE word_id < ${day*10}`
             db.query(sql,(err,result) => {
                 if (err) throw err;
                 res.json(result)

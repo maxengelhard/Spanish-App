@@ -99,7 +99,7 @@ const db = mysql.createConnection({
 const adjSQL = async (req,res) => {
     try {
         // get all the words from russian
-        let sql="SELECT grammar, word,word_id FROM wordsrussian"
+        let sql="SELECT grammar, word FROM wordsrussian"
         db.query(sql, async (err,words) => {
             // filter only the verbs
         const adjectives = words.filter(obj => (obj.grammar.includes('adjectival') || obj.grammar ==='adjective'))
@@ -108,11 +108,9 @@ const adjSQL = async (req,res) => {
         await asyncForEach(adjectives, async (obj) => {
             count++
             const adjective = obj.word
-            const word_id = obj.word_id
             const url = 'https://en.openrussian.org/ru/' + encodeURI(adjective)
             const result = await caseAdj(url)
             result.unshift(count)
-            result.push(word_id)
             const values = [result]
         sql = 'REPLACE INTO adjectivesrussian VALUES ?'
         db.query(sql,[values], async (err,result) => {
