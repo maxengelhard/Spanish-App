@@ -45,7 +45,9 @@ const EachDay = ({match}) => {
             const nouns = data.filet(obj => obj.nID !==null)
 
             // if adjectives or nouns isn't nothing then fetch the adjectives and verbs
-            
+            if (adjectives.length >0) {
+                
+            }
             
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
