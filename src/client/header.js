@@ -1,5 +1,6 @@
 import React , {useState} from 'react'
 import ReactLogo from '../FluencyDaily.png'
+import Logo from './getFiles'
 
 const Header = () => {
     
@@ -8,7 +9,7 @@ const Header = () => {
 
     return (
         <nav>
-        <img src={ReactLogo} className='logo' alt='logo'/>
+			<Logo />
         <div className='menu'>
         {/*to make a burger */}
 		<div className={`burger ${toggle ? 'toggle': 'untoggle'}`} onClick={() => setToggle(!toggle)}>

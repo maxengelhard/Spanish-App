@@ -5,6 +5,9 @@ const getImage = async (key) => {
     try {
         AWS.config.setPromisesDependency()
         AWS.config.update({
+            credentials: { accessKeyId: process.env.REACT_APP_AWS_SES_ACCESS_KEY_ID,
+            secretAccessKey: process.env.REACT_APP_AWS_SES_SECRET_ACCESS_KEY,
+            },
             region: 'us-east-2'
         })
         const S3 = new AWS.S3()
@@ -35,7 +38,7 @@ const Image = () => {
     useEffect(() => {
         getImage('FluencyDaily.png')
         .then(img => {
-            setImage(<img alt='logo' src={`data:image/png;base64, ${encode(img.Body)}`}/>)
+            setImage(<img alt='logo' className='logo' src={`data:image/png;base64, ${encode(img.Body)}`}/>)
         })
     }, [])
 
