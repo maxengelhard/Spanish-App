@@ -41,6 +41,11 @@ const EachDay = ({match}) => {
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vID !== null)
+            const adjectives = data.filter(obj => obj.aID !==null)
+            const nouns = data.filet(obj => obj.nID !==null)
+
+            // if adjectives or nouns isn't nothing then fetch the adjectives and verbs
+            
             
            await fetch(`/verbs${lang}`)
             .then(res => res.json())

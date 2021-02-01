@@ -112,6 +112,50 @@ app.get('/russianwordids', async (req,res) => {
         console.log(error)
     }
 })
+// to make the word ids
+app.get('/russianotherids', async (req,res) => {
+    try {
+        // 
+        const sql="SELECT word_id,grammar FROM wordsrussian"
+        db.query(sql,(err,words) => {
+            if (err) throw err;
+            let nID = 0
+            let aID = 0
+            // let vID = 0
+
+        words.forEach((obj,i) => {
+           const {word_id} = obj
+           if (obj.grammar === 'substantive' || obj.grammar ==='s') {
+               const nSQL=`UPDATE wordsrussian SET nID=${nID} WHERE word_id=${word_id}`
+               db.query(nSQL,(err,result) => {
+                   if (err) throw err;
+               })
+                nID++
+           }
+           if (obj.grammar.includes('adjectival') || obj.grammar ==='adjective') {
+               const aSQL=`UPDATE wordsrussian SET aID=${aID} WHERE word_id=${word_id}`
+               db.query(aSQL,(err,result) => {
+                   if (err) throw err;
+               })
+                aID++
+           }
+        //    if (obj.grammar === 'verb') {
+        //        const vSQL=`UPDATE wordsrussian SET vID=`
+        //         vID++
+
+        //    }
+        })
+
+        res.json('finsihed ids')
+        
+        })
+
+
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
 // select russian words
 
@@ -268,9 +312,10 @@ app.get(`/questions${lang}`, async (req,res) => {
 })
 
 // to get the lessons
-app.get(`/lesson${lang}`, async (req,res) => {
+app.get(`/lesson${lang}:day`, async (req,res) => {
     try {
-        let sql = `SELECT * FROM day${lang};`
+        const {day} = req.params
+        let sql = `SELECT lesson FROM day${lang} WHERE dayID=${day};`
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -279,34 +324,6 @@ app.get(`/lesson${lang}`, async (req,res) => {
     catch(error) {
         console.log(error)
     }
-})
-    // to insert the questions 
-    app.post(`/insert${lang}`, async (req,res) => {
-    try {
-        const id = req.body.day
-        const {lesson,solution}  = req.body
-        const questions = lesson.map(obj => [obj.id,obj.question])
-        const questionStr = lesson.reduce((str, obj) => {
-            return str + obj.question + '<p>'
-        },'')
-        const solutionStr = solution.reduce((str, obj) => {
-            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
-        },'')
-        const arr = [id,questionStr,solutionStr]
-        let sql = `REPLACE INTO day${lang} VALUES (?);`
-        db.query(sql,[arr], (err,result) => {
-            if (err) throw err;
-        })
-        sql = `REPLACE INTO questions${lang} VALUES ?;`
-        db.query(sql,[questions], (err,result) => {
-            if (err) throw err;
-        })
-        
-    }
-    catch(err) {
-        console.log(err)
-    }
-    
 })
 
 
