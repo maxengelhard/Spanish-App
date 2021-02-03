@@ -315,7 +315,7 @@ app.get(`/questions${lang}`, async (req,res) => {
 app.get(`/lesson${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        let sql = `SELECT lesson FROM day${lang} WHERE dayID=${day};`
+        let sql = `SELECT * FROM day${lang} WHERE dayID=${day};`
         db.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result)
@@ -386,7 +386,7 @@ app.patch(`/setqform${lang}:day`, async (req,res) => {
 
 app.get(`/completed${lang}`, async (req,res) => {
     try {
-        const sql=`SELECT dayID  FROM day${lang}`
+        const sql=`SELECT dayID,verbs FROM day${lang}`
         db.query(sql, (err, result) => {
             if (err) throw err;
             res.json(result)
@@ -425,59 +425,75 @@ app.get(`/verbs${lang}`, async (req,res) => {
     }
 })
 
+// to keep verbs in and push the in the days
+app.patch(`/keep${lang}verb`, async (req,res) => {
+    try {
+        const {verb,day} = req.body
+        const sql=`UPDATE day${lang} SET verbs='${verb}' WHERE dayID=${day}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+        })
+
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
 })
 
 
+/* This was to update the verbs. More transparency as to what verb it goes to
+//// also fixed bug that vID were not correct. This was due to some skips on verbs and their ids 
+
+app.get('/spanishverbword', async(req,res) => {
+    try {
+       let sql="SELECT * FROM verbsspanish"
+       db.query(sql,(err,verbs) => {
+           if (err) throw err;
+           sql="SELECT word,word_id FROM wordsspanish WHERE vID IS NOT NULL"
+            db.query(sql,(err,words) => {
+                if (err) throw err;
+                // for each word check to see where it is
+                const keys = Object.keys(verbs[0])
+                const verbArr = verbs.map(obj=> Object.values(obj))
+                words.forEach(wObj => {
+                    const {word,word_id} = wObj
+                    loop1:
+                    for (let i=0;i<verbArr.length;i++) {
+                        const verbConjs = verbArr[i]
+                        loop2:
+                        for (let j=1;j<verbConjs.length;j++) {
+                            const vID = verbConjs[0]
+                            const conjugation = verbConjs[j]
+                            const grammar = keys[j]
+                            const thisVerb = verbConjs[1]
+                            if (word === conjugation) {
+                                sql=`UPDATE wordsspanish SET vID=${vID}, grammar='${grammar}-${thisVerb}' WHERE word_id=${word_id}`
+                                db.query(sql,(err,result) => {
+                                    if (err) throw err;
+                                    console.log(`${word_id} done: word ${word}`)
+                                })
+                            break loop1; // breaks out of loop1 and loop2
+                            }
+                        }
+                    }
+                })
+                res.json(verbArr)
+            })
+          
+           
+       })
+    }
+    catch(error) {
+        console.log(error)
+    }
+}
+
+)*/
 
 
-
-
-
-
-// // push join verbs and used words
-// app.get('/usedwords', async (req,res) => {
-//     try {
-//         let sql="SELECT * FROM verbs;"
-//         db.query(sql, (err,verbArr) => {
-//             if (err) throw err;
-//             const strictArr = verbArr.map(obj => Object.values(obj))
-//             sql = "SELECT word_id, word FROM words"
-//             db.query(sql,(err,wordArr) => {
-//                 if (err) throw err
-//                 // find where they intersect
-//                 // itereate over the wordArr words
-//                 // find the index of the verb and add a verb id to it
-//                 const added = wordArr.map(obj => {
-//                     const word = obj.word
-//                     // itereate over the array of arrays
-//                     obj.vID = null
-//                     strictArr.forEach((arr,i) => {
-//                         if (arr.indexOf(word) !== -1) {
-//                             obj.vID = i
-//                         }
-//                     })
-//                     return Object.values(obj)
-//                 })
-//                 sql = "REPLACE INTO words VALUES ?"
-//                 db.query(sql,[added],(err,result) => {
-//                     if (err) throw err;
-//                     res.send('finsihed')
-//                 })
-
-//                 // res.json(added)
-//             })
-//             // then see about the day
-//             // res.json(fields)
-//         })
-//     }
-//     catch(error) {
-//         console.log(error)
-//     }
-// })
-
-
-app.get('/sendtranslation', translateSentences)
-
+// app.get('/sendtranslation', translateSentences)
 
 
 

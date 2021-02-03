@@ -21,6 +21,9 @@ const EachDay = ({match}) => {
     const [questions, setQuestions] = useState(questionArr)
     const [learnedWords, setLearnedWords] = useState([])
     const [loading,setLoading] = useState(true)
+    const [uniqueWords,setUniqueWords] = useState([])
+    const [verbs,setVerbs] = useState([])
+    const [usedVerbs,setUsedVerbs] = useState('')
 
     useEffect(() => {
         // to change the sentences
@@ -31,23 +34,60 @@ const EachDay = ({match}) => {
         await fetch(`/completed${lang}`)
         .then(res => res.json())
         .then(async (completed) => {
-        const thisDay = completed.map(obj => obj.dayID).includes(day)
+        let thisDay = false
+        let usedVerbs = []
+        for (let i=0; i<completed.length;i++) {
+            const {dayID,verbs} = completed[i]
+            if (dayID ===day) {
+                if (verbs) {
+                usedVerbs = verbs.split(',')
+                setUsedVerbs(verbs)
+                } else {
+                    setUsedVerbs('')
+                }
+                thisDay=true
+                break
+            }
+        }
+        
         // this will allow me to higlight all the words we've already had
         await fetch(`/words${lang}${day+1}`)
         .then(res => res.json())
         .then(async (data) => {
             // slice the array from zero all the way to the new day
-            const usedWords = data.map(obj => obj.word)
+            let uniqueWords = []
+            let uniqueVerbs = []
+            const usedWords = data.map((obj,i) => {
+                if (i>=(day*10) && i<=((day+1)*10)) {
+                    uniqueWords.push(obj.word)
+                    if (obj.vID !==null) {
+                        // itereate over the usedVerbs to see if we already have it
+                        const infinitive = obj.grammar.split('-')[1]
+                        if (usedVerbs.indexOf(infinitive) ===-1) {
+                            uniqueVerbs.push(obj)
+                        } 
+                    }
+                }
+                return obj.word
+            })
+            setUniqueWords(uniqueWords)
+            setVerbs(uniqueVerbs)
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vID !== null)
-            const adjectives = data.filter(obj => obj.aID !==null)
-            const nouns = data.filet(obj => obj.nID !==null)
+            
+            // const adjectives = data.filter(obj => obj.aID !==null)
+            // const nouns = data.filter(obj => obj.nID !==null)
 
             // if adjectives or nouns isn't nothing then fetch the adjectives and verbs
-            if (adjectives.length >0) {
+            // if (adjectives.length >0) {
+            //     console.log('adjectives here')
                 
-            }
+            // }
+
+            // if (nouns.length) {
+            //     console.log('nouns here')
+            // }
             
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
@@ -56,12 +96,14 @@ const EachDay = ({match}) => {
                 // get all the data of the vId's
                 // itereate over the verbs we have the index is the verb id
                 verbId.forEach(obj => {
-                    const arr = Object.values(verbs[obj.vID]).slice(1)
+                    const id = obj.vID -1
+                    // check to see if we already have the verb first
+                    const arr = Object.values(verbs[id]).slice(1)
                     verbArr.push(arr)
-
+                    // does it include it and if it does then show what form it is of the verb
+                    
                 })
-        
-                // to make the verbs one big array
+                // to make the verbs conjugation and used words into one big array
                 const cleanVerbs = [].concat.apply([], verbArr)
                 const ultimate = usedWords.concat(cleanVerbs)
                 setLearnedWords(ultimate)
@@ -70,6 +112,7 @@ const EachDay = ({match}) => {
                await fetch(`/day${lang}${day+1}`)
                 .then(res => res.json())
                 .then(async (sentences) => {
+
                     
                 setSentences(sentences)
 
@@ -170,7 +213,7 @@ const EachDay = ({match}) => {
         setQuestions(newArr)
     }
 
-    const uniqueWords = learnedWords.slice((day*10),(day+1)*10)
+    
 
 
     // send lesson
@@ -184,6 +227,33 @@ const EachDay = ({match}) => {
         })
     }
 
+    const keepVerb = (obj) => {
+        // insert into day verbs
+        const verb = obj.grammar.split('-')[1] +','
+        const addedVerbs = usedVerbs+verb
+        fetch(`/keep${lang}verb`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({verb:addedVerbs,day})
+        })
+        
+        setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take it out of the verbs
+    }
+
+
+    const outVerb = (obj) => {
+
+        fetch(`/out${lang}verb`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({obj,day})
+        })
+        setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take out the verbs
+    }
     
     return (
     loading ? <div className="spin"></div> :
@@ -192,6 +262,25 @@ const EachDay = ({match}) => {
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
     </div>
+    {verbs.length > 0 ?
+    <div className='newVerbs' style={{display: 'flex'}}>
+        <h3>New Verbs</h3>
+        {verbs.map((obj,i) => {
+            const verb = obj.grammar.split('-')[1]
+         return <div key={i} style={{display: 'flex', width:'15%'}}>
+             <div style={{width:'50px', margin:'auto'}}>{verb}</div>
+             <button 
+             onClick={() => keepVerb(obj)}
+             style={{background: 'green',width:'50px'}}>
+                  Keep</button>
+             <button 
+             onClick={() => outVerb(obj)}
+             style={{background:'red',width:'50px'}}>
+                 Out</button>
+             </div>
+         })}
+    </div> : null
+}
     <div className='eachDayPage'>
     <table className='adminTable'>
         <thead>

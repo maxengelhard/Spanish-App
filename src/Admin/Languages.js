@@ -1,7 +1,7 @@
 import React , {useState,useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import AF from '../countrys-flags/png/af.png'
-import AR from '../countrys-flags/ar.jpg' 
+import AR from '../countrys-flags/png/ar.jpg' 
 import BG from '../countrys-flags/png/bulgaria.png'
 import BS from '../countrys-flags/png/bosnia-and-herzegovina.png'
 import CA from '../countrys-flags/png/andorra.png'
