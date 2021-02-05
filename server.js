@@ -5,6 +5,8 @@ dotenv.config()
 const cors = require('cors');
 const createSpanishSQL = require('./database/spanish/createSpanishSQL')
 const createVerbsSQL = require('./database/spanish/createVerbsSQL')
+const spanishGrammar = require('./database/spanish/grammar')
+const spanishNounsAdjs = require('./database/spanish/nounsAdjs')
 const translateSentences = require('./database/translateSentences')
 const wordsSQL = require('./database/wordsSQL');
 const russianSQL = require('./database/russian/russianSQL')
@@ -331,7 +333,7 @@ app.get(`/lesson${lang}:day`, async (req,res) => {
 app.patch(`/update${lang}`, async (req,res) => {
     try {
         const id = req.body.day
-        const {lesson,solution} = req.body
+        const {lesson,solution,usedVerbs} = req.body
         const questions = lesson.map(obj => [obj.id,obj.question])
         const questionStr = lesson.reduce((str, obj) => {
             return str + obj.question + '<p>'
@@ -339,7 +341,7 @@ app.patch(`/update${lang}`, async (req,res) => {
         const solutionStr = solution.reduce((str, obj) => {
             return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
         },'')
-        const arr = [id,questionStr,solutionStr]
+        const arr = [id,questionStr,solutionStr,usedVerbs]
         let sql = `REPLACE INTO day${lang} VALUES (?);`
         db.query(sql,[arr], (err,result) => {
             if (err) throw err;
@@ -425,15 +427,45 @@ app.get(`/verbs${lang}`, async (req,res) => {
     }
 })
 
-// to keep verbs in and push the in the days
-app.patch(`/keep${lang}verb`, async (req,res) => {
+
+// to clear out the verbID and it's grammar
+app.patch(`/out${lang}verb`, async (req,res) => {
+    try{
+        const {obj} = req.body
+        const sql=`UPDATE words${lang} SET vID=NULL WHERE word_id=${obj.word_id}`
+        db.query(sql,(err,result) => {
+            if (err)throw err;
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+// for the adjectives
+app.get(`/adjectives${lang}:day`, async (req,res) => {
     try {
-        const {verb,day} = req.body
-        const sql=`UPDATE day${lang} SET verbs='${verb}' WHERE dayID=${day}`
+        const {day} = req.params
+        const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10}`
         db.query(sql,(err,result) => {
             if (err) throw err;
+            res.json(result)
         })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
+// for nouns
+app.get(`/nouns${lang}:day`, async (req,res) => {
+    try {
+        const {day} = req.params
+        const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10}`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+                res.json(result)
+        })
     }
     catch(error) {
         console.log(error)
@@ -442,6 +474,10 @@ app.patch(`/keep${lang}verb`, async (req,res) => {
 
 })
 
+
+// app.get('/spanishnounsadj', spanishNounsAdjs)
+
+// app.get('/spanishgrammar', spanishGrammar)
 
 /* This was to update the verbs. More transparency as to what verb it goes to
 //// also fixed bug that vID were not correct. This was due to some skips on verbs and their ids 

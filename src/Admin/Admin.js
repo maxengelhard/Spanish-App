@@ -17,7 +17,7 @@ const AdminJS = ({match}) => {
     <div className='dayButtons'>
     <Route path={`/admin/${lang}`} exact component={AdminHome}/>
     <Route path={'/admin'} exact component={Languages}/>
-    <Routes lang={lang}/>
+    <Routes lang={lang} exact/>
     </div>
     </Router>
     }

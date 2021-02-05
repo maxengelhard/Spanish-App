@@ -7,8 +7,6 @@ import underScore from './underscore'
 import translateThis from './translateThis'
 
 
-
-
 const EachDay = ({match}) => {
     const last = match.url.lastIndexOf('/')
     const lang = match.url.slice(7,last)
@@ -24,6 +22,9 @@ const EachDay = ({match}) => {
     const [uniqueWords,setUniqueWords] = useState([])
     const [verbs,setVerbs] = useState([])
     const [usedVerbs,setUsedVerbs] = useState('')
+    const [adjectives,setAdjectives] = useState([])
+    const [nouns,setNouns] = useState([])
+    const [fields,setFields] = useState([])
 
     useEffect(() => {
         // to change the sentences
@@ -38,9 +39,12 @@ const EachDay = ({match}) => {
         let usedVerbs = []
         for (let i=0; i<completed.length;i++) {
             const {dayID,verbs} = completed[i]
+            if (verbs) {
+                const arr = verbs.split(',').filter(word => word.length>0)
+                usedVerbs.push(arr)
+            }
             if (dayID ===day) {
                 if (verbs) {
-                usedVerbs = verbs.split(',')
                 setUsedVerbs(verbs)
                 } else {
                     setUsedVerbs('')
@@ -49,6 +53,7 @@ const EachDay = ({match}) => {
                 break
             }
         }
+        const justVerbs = [].concat.apply([],usedVerbs)
         
         // this will allow me to higlight all the words we've already had
         await fetch(`/words${lang}${day+1}`)
@@ -57,21 +62,77 @@ const EachDay = ({match}) => {
             // slice the array from zero all the way to the new day
             let uniqueWords = []
             let uniqueVerbs = []
+            let adjectives = []
+            let nouns = []
             const usedWords = data.map((obj,i) => {
                 if (i>=(day*10) && i<=((day+1)*10)) {
                     uniqueWords.push(obj.word)
                     if (obj.vID !==null) {
                         // itereate over the usedVerbs to see if we already have it
                         const infinitive = obj.grammar.split('-')[1]
-                        if (usedVerbs.indexOf(infinitive) ===-1) {
+                        if (justVerbs.indexOf(infinitive) ===-1) {
                             uniqueVerbs.push(obj)
                         } 
                     }
+                if (obj.grammar==='adjective' || obj.grammar.includes('hasAdj')) {
+                    adjectives.push(obj.word)
+                }
+                if (obj.grammar.includes('noun')) {
+                    nouns.push(obj.word)
+                }
                 }
                 return obj.word
             })
             setUniqueWords(uniqueWords)
             setVerbs(uniqueVerbs)
+            
+
+            let fieldArr = []
+            await fetch(`/adjectives${lang}${day}`)
+            .then(res => res.json())
+            .then(async (adjectives) => {
+                if (adjectives.length >0) {
+                const fields = Object.keys(adjectives[0]).filter(fields => (fields !=='aID' && fields!=='word' && fields!=='word_id'))
+                const values = adjectives.map(obj => {
+                    return Object.values(obj).filter(words => isNaN(words)) // only the words
+                })
+                console.log(values)
+                fieldArr.push(fields)
+                } else {
+                    fieldArr.push([])
+                }
+                
+            })
+
+
+            await fetch(`/nouns${lang}${day}`)
+            .then(res => res.json())
+            .then(async (nouns) => {
+                if (nouns.length >0) {
+                const fields = Object.keys(nouns[0]).filter(fields => (fields !=='nID' && fields!=='word' && fields!=='word_id'))
+                fieldArr.push(fields)
+                const values = nouns.map(obj => {
+                    return Object.values(obj).filter(words => isNaN(words)) // only the words
+                })
+                console.log(values)
+                } else {
+                fieldArr.push([])
+                }
+            })
+            
+            setNouns(nouns)
+            setAdjectives(adjectives)
+            setFields(fieldArr)
+            // make an adjective arr
+            // const allAdjectives = adjectives.map(adj => {
+            //     // is the last an s?
+
+            //     // is the last an o?
+
+            //     // is last an a?
+
+            //     // 
+            // })
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vID !== null)
@@ -98,8 +159,13 @@ const EachDay = ({match}) => {
                 verbId.forEach(obj => {
                     const id = obj.vID -1
                     // check to see if we already have the verb first
-                    const arr = Object.values(verbs[id]).slice(1)
-                    verbArr.push(arr)
+                    const arr = Object.values(verbs[id]).slice(1).map(word => {
+                        // itereate over that array and see if it has a comma if it does split it  
+                        if (word.includes(',')) {
+                            return word.split(',')
+                        }  else return word                   
+                    })
+                    verbArr.push([].concat.apply([],arr)) // to make it one array
                     // does it include it and if it does then show what form it is of the verb
                     
                 })
@@ -223,7 +289,7 @@ const EachDay = ({match}) => {
                 'Content-type': 'application/json'
             },
            method: 'PATCH',
-           body: JSON.stringify({day, lesson: questions[day], solution: sentences})
+           body: JSON.stringify({day, lesson: questions[day], solution: sentences, usedVerbs})
         })
     }
 
@@ -231,14 +297,7 @@ const EachDay = ({match}) => {
         // insert into day verbs
         const verb = obj.grammar.split('-')[1] +','
         const addedVerbs = usedVerbs+verb
-        fetch(`/keep${lang}verb`, {
-            headers: {
-                'Content-type': 'application/json'
-            },
-            method: 'PATCH',
-            body: JSON.stringify({verb:addedVerbs,day})
-        })
-        
+        setUsedVerbs(addedVerbs)
         setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take it out of the verbs
     }
 
@@ -250,9 +309,17 @@ const EachDay = ({match}) => {
                 'Content-type': 'application/json'
             },
             method: 'PATCH',
-            body: JSON.stringify({obj,day})
+            body: JSON.stringify({obj})
         })
         setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take out the verbs
+    }
+
+    const completeAdj = () => {
+        console.log('complete')
+    }
+
+    const completeNoun = () => {
+        console.log('complete')
     }
     
     return (
@@ -277,6 +344,46 @@ const EachDay = ({match}) => {
              onClick={() => outVerb(obj)}
              style={{background:'red',width:'50px'}}>
                  Out</button>
+             </div>
+         })}
+    </div> : null
+}
+{/* Adjectives */}
+    {adjectives.length > 0 ?
+    <div className='newVerbs' style={{display: 'flex'}}>
+        <h3>New Adjectives</h3>
+        {adjectives.map((word,i) => {
+         return <div key={i} style={{display: 'flex', width:'15%'}}>
+             <div style={{width:'50px', margin:'auto'}}>{word}</div>
+             {fields[0].map((field,i) => {
+                 return (<form key={i}>
+                     {field}
+                    </form>)
+             })}
+             <button 
+             onClick={() => completeAdj()}
+             style={{background:'green',width:'50px'}}>
+                 Complete</button>
+             </div>
+         })}
+    </div> : null
+}
+    {nouns.length > 0 ?
+    <div className='newVerbs' style={{display: 'flex'}}>
+        <h3>New Nouns</h3>
+        {nouns.map((noun,i) => {
+         return <div key={i} style={{display: 'flex', width:'15%'}}>
+             <div style={{width:'50px', margin:'auto'}}>{noun}</div>
+             {fields[1].map((field,i) => {
+                 return (
+                     <form key={i}>{field}</form>
+                 )
+             })}
+             <button 
+             onClick={() => completeNoun()}
+             style={{background:'green',width:'50px'}}>
+                Complete
+              </button>
              </div>
          })}
     </div> : null
