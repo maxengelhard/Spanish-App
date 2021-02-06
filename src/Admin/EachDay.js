@@ -25,6 +25,8 @@ const EachDay = ({match}) => {
     const [adjectives,setAdjectives] = useState([])
     const [nouns,setNouns] = useState([])
     const [fields,setFields] = useState([])
+    const [usedAdjectives, setUsedAdjectives] = useState([])
+    const [usedNouns,setUsedNouns] = useState([])
 
     useEffect(() => {
         // to change the sentences
@@ -314,12 +316,15 @@ const EachDay = ({match}) => {
         setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take out the verbs
     }
 
-    const completeAdj = () => {
-        console.log('complete')
+    const completeAdj = (e) => {
+        e.preventDefault()
+        console.log(usedAdjectives)
     }
 
-    const completeNoun = () => {
+    const completeNoun = (e) => {
+        e.preventDefault()
         console.log('complete')
+        console.log(usedNouns)
     }
     
     return (
@@ -356,9 +361,12 @@ const EachDay = ({match}) => {
          return <div key={i} style={{display: 'flex', width:'15%'}}>
              <div style={{width:'50px', margin:'auto'}}>{word}</div>
              {fields[0].map((field,i) => {
-                 return (<form key={i}>
-                     {field}
-                    </form>)
+                 return (
+        <form key={i} onSubmit={completeAdj}>
+        <label>{field}</label>
+        <input type="text" required onChange={(e) => setUsedAdjectives(e.target.value)} />
+        <input type='submit' value='Submit' />
+        </form>)
              })}
              <button 
              onClick={() => completeAdj()}
@@ -376,8 +384,11 @@ const EachDay = ({match}) => {
              <div style={{width:'50px', margin:'auto'}}>{noun}</div>
              {fields[1].map((field,i) => {
                  return (
-                     <form key={i}>{field}</form>
-                 )
+        <form key={i} onSubmit={completeNoun}>
+        <label>{field}</label>
+        <input type="text" required onChange={(e) => setUsedNouns(e.target.value)} />
+        <input type='submit' value='Submit' />
+        </form>)
              })}
              <button 
              onClick={() => completeNoun()}
@@ -408,9 +419,7 @@ const EachDay = ({match}) => {
         <p>{item.englishS}</p>
         </td>
         <td className={submited}>
-            {/* check to see if we have translated it yet */}
         <p>{higlight(item[`${lang}S`],learnedWords)}</p>
-        {/* this is the form. if it's spanish we've already translated it  else translate the sentences*/}
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
