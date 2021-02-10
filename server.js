@@ -463,7 +463,7 @@ app.patch(`/setqform${lang}:day`, async (req,res) => {
 
 app.get(`/completed${lang}`, async (req,res) => {
     try {
-        const sql=`SELECT dayid,verbs FROM day${lang}`
+        const sql=`SELECT dayid,verbs FROM day${lang} ORDER BY dayid`
         client.query(sql, (err, result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -540,6 +540,39 @@ app.get(`/nouns${lang}:day`, async (req,res) => {
         client.query(sql,(err,result) => {
             if (err) throw err;
                 res.json(result.rows)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
+app.patch(`/update${lang}nouns:noun`, async (req,res) => {
+    try {
+        const {noun} = req.params
+        const entires = Object.entries(req.body[noun])
+        entires.forEach(pair => {
+        const sql=`UPDATE nouns${lang} SET ${pair[0]}='${pair[1]}' WHERE word='${noun}'`
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+        })
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+app.patch(`/update${lang}adjectives:adj`, async (req,res) => {
+    try {
+        const {adj} = req.params
+        const entires = Object.entries(req.body[adj])
+        entires.forEach(pair => {
+        const sql=`UPDATE adjectives${lang} SET ${pair[0]}='${pair[1]}' WHERE word='${adj}'`
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+        })
         })
     }
     catch(error) {

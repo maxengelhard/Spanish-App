@@ -267,17 +267,17 @@ nav {
   display: flex;
 }
 
-.newVerbs {
+.newAdds {
   width: 100%;
   display: flex;
 }
 
-.newVerbs h3 {
+.newAdds h3 {
   width: 8.5%;
   text-align: center;
 }
 
-.newVerbs button {
+.newAdds button {
   margin: auto 5px auto 5px;
 }
 

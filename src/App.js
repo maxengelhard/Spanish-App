@@ -13,8 +13,8 @@ function App() {
       <Switch>
       <Route path='/' exact component={Home}/>
       <Route path="/admin/:lang" exact component={Admin}/>
-      <Route path="/admin" component={Languages} />
-      <Route path='/admin/:lang/day:id' component={EachDay}/>
+      <Route path="/admin" exact component={Languages} />
+      <Route path='/admin/:lang/day:id' exact component={EachDay}/>
       </Switch>
     </div>
     </Router>

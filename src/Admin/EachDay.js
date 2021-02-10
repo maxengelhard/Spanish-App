@@ -55,7 +55,7 @@ const EachDay = ({match}) => {
                 break
             }
         }
-        const justVerbs = [].concat.apply([],usedVerbs)
+        const justVerbs = [...new Set([].concat.apply([],usedVerbs))]
         
         // this will allow me to higlight all the words we've already had
         await fetch(`/words${lang}${day+1}`)
@@ -64,9 +64,9 @@ const EachDay = ({match}) => {
             // slice the array from zero all the way to the new day
             let uniqueWords = []
             let uniqueVerbs = []
-            let adjectives = []
-            let nouns = []
-            const usedWords = data.map((obj,i) => {
+            let dayAdjectives = []
+            let dayNouns = []
+            let usedWords = data.map((obj,i) => {
                 if (i>=(day*10) && i<=((day+1)*10)) {
                     uniqueWords.push(obj.word)
                     if (obj.vid !==null) {
@@ -76,11 +76,11 @@ const EachDay = ({match}) => {
                             uniqueVerbs.push(obj)
                         } 
                     }
-                if (obj.grammar==='adjective' || obj.grammar.includes('hasadj')) {
-                    adjectives.push(obj.word)
+                if (obj.grammar==='adjective' || obj.grammar.includes('hasAdj')) {
+                    dayAdjectives.push(obj.word)
                 }
                 if (obj.grammar.includes('noun')) {
-                    nouns.push(obj.word)
+                    dayNouns.push(obj.word)
                 }
                 }
                 return obj.word
@@ -90,67 +90,76 @@ const EachDay = ({match}) => {
             
 
             let fieldArr = []
+            let usedAdjectives = []
+            let cleanAdjs = []
             await fetch(`/adjectives${lang}${day}`)
             .then(res => res.json())
             .then(async (adjectives) => {
                 if (adjectives.length >0) {
-                const fields = Object.keys(adjectives[0]).filter(fields => (fields !=='aid' && fields!=='word' && fields!=='word_id'))
+                const fields = Object.keys(adjectives[0]).filter(fields => (fields !=='aid' && fields!=='word' && fields!=='word_id' && fields!=='completed'))
+                fieldArr.push(fields)
                 const values = adjectives.map(obj => {
+                     // to get rid of the adjectives we have already compelted
+                     if (obj.completed===1) {
+                         const index = dayAdjectives.indexOf(obj.word)
+                         if (index >=0) {
+                        dayAdjectives.splice(index,1)
+                         }
+                    }
+                    
                     return Object.values(obj).filter(words => isNaN(words)) // only the words
                 })
-                console.log(values)
-                fieldArr.push(fields)
+                values.forEach(arr => {
+                    usedAdjectives[arr[0]]=fields.reduce((obj,val) => {
+                        return {...obj, [val]: ''}
+                    },{}) 
+                })
+                cleanAdjs = [].concat.apply([],values)
                 } else {
                     fieldArr.push([])
                 }
                 
             })
 
-
+            let usedNouns = {}
+            let cleanNouns = []
             await fetch(`/nouns${lang}${day}`)
             .then(res => res.json())
             .then(async (nouns) => {
                 if (nouns.length >0) {
-                const fields = Object.keys(nouns[0]).filter(fields => (fields !=='nid' && fields!=='word' && fields!=='word_id'))
+                const fields = Object.keys(nouns[0]).filter(fields => (fields !=='nid' && fields!=='word' && fields!=='word_id' && fields!=='completed'))
                 fieldArr.push(fields)
                 const values = nouns.map(obj => {
+                    // this takes out the completed nouns
+                    if (obj.completed===1) {
+                         const index = dayNouns.indexOf(obj.word)
+                         if (index >=0) {
+                        dayNouns.splice(index,1)
+                         }
+                    }
                     return Object.values(obj).filter(words => isNaN(words)) // only the words
                 })
-                console.log(values)
+                values.forEach(arr => {
+                    usedNouns[arr[0]]=fields.reduce((obj,val) => {
+                        return {...obj, [val]: ''}
+                    },{}) 
+                })
+                cleanNouns = [].concat.apply([],values)
                 } else {
                 fieldArr.push([])
                 }
             })
             
-            setNouns(nouns)
-            setAdjectives(adjectives)
+            setNouns(dayNouns)
+            setAdjectives(dayAdjectives)
             setFields(fieldArr)
-            // make an adjective arr
-            // const allAdjectives = adjectives.map(adj => {
-            //     // is the last an s?
-
-            //     // is the last an o?
-
-            //     // is last an a?
-
-            //     // 
-            // })
+            setUsedAdjectives(usedAdjectives)
+            setUsedNouns(usedNouns)
+            
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vid !== null)
             
-            // const adjectives = data.filter(obj => obj.aID !==null)
-            // const nouns = data.filter(obj => obj.nID !==null)
-
-            // if adjectives or nouns isn't nothing then fetch the adjectives and verbs
-            // if (adjectives.length >0) {
-            //     console.log('adjectives here')
-                
-            // }
-
-            // if (nouns.length) {
-            //     console.log('nouns here')
-            // }
             
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
@@ -173,7 +182,7 @@ const EachDay = ({match}) => {
                 })
                 // to make the verbs conjugation and used words into one big array
                 const cleanVerbs = [].concat.apply([], verbArr)
-                const ultimate = usedWords.concat(cleanVerbs)
+                const ultimate = [...new Set(usedWords.concat(cleanVerbs).concat(cleanAdjs).concat(cleanNouns))]
                 setLearnedWords(ultimate)
 
 
@@ -263,7 +272,7 @@ const EachDay = ({match}) => {
         else {
             edited.push({
                 id: `${day}-${questions[day].length}`,
-                question: `${sentences[questions[day].length].englishs} ${newQuestion}`,
+                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
                 active:false
             })
             
@@ -316,13 +325,53 @@ const EachDay = ({match}) => {
 
     const completeAdj = (e) => {
         e.preventDefault()
-        console.log(usedAdjectives)
+        const adj = Object.keys(usedAdjectives)[0]
+        fetch(`/update${lang}adjectives${adj}`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({...usedAdjectives,completed:0})
+        })
+
     }
 
     const completeNoun = (e) => {
         e.preventDefault()
-        console.log('complete')
-        console.log(usedNouns)
+        const noun = Object.keys(usedNouns)[0]
+        fetch(`/update${lang}nouns${noun}`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({...usedNouns,completed:0})
+        })
+    }
+
+    const subAdj = (adj) => {
+        const theseAdj = {...usedAdjectives[adj],completed:1}
+        fetch(`/update${lang}adjectives${adj}`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({[adj]:theseAdj})
+        })
+        const closed = [...adjectives].filter(word => word!==adj)
+        setAdjectives(closed)
+    }
+
+    const subNoun = (noun) => {
+        const theseNouns = {...usedNouns[noun],completed:1}
+        fetch(`/update${lang}nouns${noun}`, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'PATCH',
+            body: JSON.stringify({[noun]:theseNouns})
+        })
+        const closed = [...nouns].filter(word => word!==noun)
+        setNouns(closed)
     }
     
     return (
@@ -332,8 +381,8 @@ const EachDay = ({match}) => {
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
     </div>
-    {verbs.length > 0 ?
-    <div className='newVerbs' style={{display: 'flex'}}>
+    {(verbs.length > 0 && lang==='spanish') ?
+    <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Verbs</h3>
         {verbs.map((obj,i) => {
             const verb = obj.grammar.split('-')[1]
@@ -352,45 +401,53 @@ const EachDay = ({match}) => {
     </div> : null
 }
 {/* Adjectives */}
-    {adjectives.length > 0 ?
-    <div className='newVerbs' style={{display: 'flex'}}>
+    {(adjectives.length > 0 && lang==='spanish') ?
+    <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Adjectives</h3>
-        {adjectives.map((word,i) => {
-         return <div key={i} style={{display: 'flex', width:'15%'}}>
-             <div style={{width:'50px', margin:'auto'}}>{word}</div>
+        {adjectives.map((adjective,i) => {
+         return <div key={i} style={{display: 'flex'}}>
+             <div style={{width:'50px', margin:'auto'}}>{adjective}</div>
              {fields[0].map((field,i) => {
                  return (
-        <form key={i} onSubmit={completeAdj}>
+        <form style={{width:'50px'}}key={i} onSubmit={completeAdj}>
         <label>{field}</label>
-        <input type="text" required onChange={(e) => setUsedAdjectives(e.target.value)} />
-        <input type='submit' value='Submit' />
+        <input type="text" required onChange={(e) =>{
+            let prevAdjectives = {...usedAdjectives[adjective]}
+            prevAdjectives[field]= e.target.value
+            setUsedAdjectives({[adjective]: prevAdjectives})
+        }}/>
         </form>)
              })}
              <button 
-             onClick={() => completeAdj()}
-             style={{background:'green',width:'50px'}}>
+             onClick={() => subAdj(adjective)}
+             style={{background:'green',maxWidth:'90px',marginBottom:'6px'}}>
                  Complete</button>
              </div>
          })}
     </div> : null
 }
-    {nouns.length > 0 ?
-    <div className='newVerbs' style={{display: 'flex'}}>
+{/* {nouns} */}
+    {(nouns.length > 0 && lang==='spanish') ?
+    <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Nouns</h3>
         {nouns.map((noun,i) => {
-         return <div key={i} style={{display: 'flex', width:'15%'}}>
+         return <div key={i} style={{display: 'flex'}}>
              <div style={{width:'50px', margin:'auto'}}>{noun}</div>
-             {fields[1].map((field,i) => {
+             {fields[1].map((field,j) => {
                  return (
-        <form key={i} onSubmit={completeNoun}>
+        <form key={j} style={{width:'50px'}}onSubmit={completeNoun}>
         <label>{field}</label>
-        <input type="text" required onChange={(e) => setUsedNouns(e.target.value)} />
-        <input type='submit' value='Submit' />
+        <input type="text" required onChange={(e) => {
+            let prevNouns = {...usedNouns[noun]}
+            prevNouns[field]= e.target.value
+            setUsedNouns({[noun]: prevNouns})
+        } 
+        }/>
         </form>)
              })}
-             <button 
-             onClick={() => completeNoun()}
-             style={{background:'green',width:'50px'}}>
+             <button
+             onClick={() => subNoun(noun)}
+             style={{background:'green',maxWidth:'90px',marginBottom:'6px'}}>
                 Complete
               </button>
              </div>
@@ -417,7 +474,7 @@ const EachDay = ({match}) => {
         <p>{item.englishs}</p>
         </td>
         <td className={submited}>
-        <p>{higlight(item[`${lang}s`],learnedWords)}</p>
+        {higlight(item[`${lang}s`],learnedWords)}
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
