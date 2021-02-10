@@ -5,6 +5,7 @@ import {Link} from 'react-router-dom'
 import higlight from './highlight'
 import underScore from './underscore'
 import translateThis from './translateThis'
+import solution from './solution'
 
 
 const EachDay = ({match}) => {
@@ -66,7 +67,7 @@ const EachDay = ({match}) => {
             let uniqueVerbs = []
             let dayAdjectives = []
             let dayNouns = []
-            let usedWords = data.map((obj,i) => {
+            const usedWords = data.map((obj,i) => {
                 if (i>=(day*10) && i<=((day+1)*10)) {
                     uniqueWords.push(obj.word)
                     if (obj.vid !==null) {
@@ -149,13 +150,7 @@ const EachDay = ({match}) => {
                 fieldArr.push([])
                 }
             })
-            
-            setNouns(dayNouns)
-            setAdjectives(dayAdjectives)
-            setFields(fieldArr)
-            setUsedAdjectives(usedAdjectives)
-            setUsedNouns(usedNouns)
-            
+
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vid !== null)
@@ -185,6 +180,15 @@ const EachDay = ({match}) => {
                 const ultimate = [...new Set(usedWords.concat(cleanVerbs).concat(cleanAdjs).concat(cleanNouns))]
                 setLearnedWords(ultimate)
 
+                // see if we already have a day noun or adjective already in
+                // take out the unqieWords from the ultimate and see if there are still in the ultimate
+                
+                setNouns(dayNouns)
+                setAdjectives(dayAdjectives)
+                setFields(fieldArr)
+                setUsedAdjectives(usedAdjectives)
+                setUsedNouns(usedNouns)
+            
 
                await fetch(`/day${lang}${day+1}`)
                 .then(res => res.json())
@@ -467,6 +471,7 @@ const EachDay = ({match}) => {
         {sentences.map((item,index) => {
         const submited = questions[day][index] ? 'submited': null
         const lastSub = questions[day].length
+        const highlitedText = higlight(item[`${lang}s`],learnedWords)
     return (<tr className={`sentence-${day}-${index}`} key={item.id}>
         <td className={submited}>
         <p><b>{item.id}: {item.word}</b></p>
@@ -474,7 +479,7 @@ const EachDay = ({match}) => {
         <p>{item.englishs}</p>
         </td>
         <td className={submited}>
-        {higlight(item[`${lang}s`],learnedWords)}
+        {highlitedText[0]}
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
@@ -487,6 +492,7 @@ const EachDay = ({match}) => {
         addQ={addQ} 
         editQ={editQ} 
         />
+        {solution(highlitedText[1],questions[day][index].question)}
         { lastSub-1 ===index ?
         <Link to={`/admin/${lang}`}>
     <button onClick={() => { updateLesson()}}>
