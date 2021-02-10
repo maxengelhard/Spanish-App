@@ -31,3 +31,8 @@ yarn-error.log*
 *.png
 *.gif
 *.svg
+
+#/zip folders 
+*.zip
+#/csvs
+*.csv

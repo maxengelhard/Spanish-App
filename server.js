@@ -1,5 +1,6 @@
 const express = require('express')
 const mysql = require('mysql')
+const {Client} = require('pg')
 const dotenv = require('dotenv');
 dotenv.config()
 const cors = require('cors');
@@ -16,10 +17,12 @@ const russianAdjectives = require('./database/russian/adjective')
 const fs = require('fs')
 const twenty16 = './database/frequentWords/2016'
 const languages = require('./languages')
+const exportCSV = require('./database/exportCSV')
+const createTables = require('./database/createTables')
+const migrate = require('./database/migrateCSV')
 
 
-
-// create connection
+// create connection mysql
 const db = mysql.createConnection({
     host: process.env.HOST,
     user: process.env.USER,
@@ -35,6 +38,21 @@ db.connect((err) => {
     console.log('My sql connected...')
 })
 
+// postgres
+
+const client = new Client({
+    user: process.env.PSQLUSER,
+    password: process.env.PSQLPASSWORD,
+    port: process.env.PSQLPORT,
+    database: process.env.PSQLDATABASE
+})
+
+client.connect()
+.then(() => console.log('Postgres Connected'))
+.catch(e => console.log(e))
+
+
+
 const app = express();
 
 app.use(cors())
@@ -45,8 +63,54 @@ app.use(express.urlencoded({extended: false}))
 
 // after each submisson create a lesson and put in all the quesitons
 
-//////////////////////////// OTHER LANGUAGES
+/*
+app.get('/postgres', async(req,res) => {
+    try {
+        const sql='SELECT * FROM test'
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result.rows)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
+//// exports as csvs
+// app.get('/exportcsv', exportCSV)
+
+// app.get('/createtables',createTables)
+
+// app.get('/migrate', migrate)
+// testing it out
+app.get('/psqlrussian',async(req,res) => {
+    try{
+        const sql='SELECT * FROM adjectivesrussian'
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result.rows)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    } 
+})
+
+app.get('/mysqlrussian',async(req,res) => {
+    try {
+        const sql=`SELECT * FROM adjectivesrussian`
+        db.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result)
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+//////////////////////////// OTHER LANGUAGES
 // russian sql
 app.get('/topwordsrussian', wordsSQL)
 
@@ -237,7 +301,7 @@ app.get('/languagewords',async (req,res) => {
     })
 
 
-
+*/
 // to display a list of all languages
 // I can now itereate over this
 app.get('/languages', async (req,res) => {
@@ -258,8 +322,8 @@ app.get('/languages', async (req,res) => {
 
 // insert sentences to sentences table:  finished
 // spanish
-app.get('/spanishsentence', createSpanishSQL)
-app.get('/conjugate', createVerbsSQL)
+// app.get('/spanishsentence', createSpanishSQL)
+// app.get('/conjugate', createVerbsSQL)
 
 
 // to see all the questions we have
@@ -272,10 +336,10 @@ languages.forEach(lang => {
     app.get(`/day${lang}:day`, async (req,res) => {
         try {
         const day = req.params.day;
-        let sql =  `SELECT * FROM words${lang} INNER JOIN sentences${lang} ON words${lang}.word_id = sentences${lang}.word_id WHERE sentences${lang}.word_id >=? AND sentences${lang}.word_id<?;`
-        db.query(sql,[(day*10)-10,day*10],(err,result) => {
+        const sql =  `SELECT * FROM words${lang} INNER JOIN sentences${lang} ON words${lang}.word_id = sentences${lang}.word_id WHERE sentences${lang}.word_id >=$1 AND sentences${lang}.word_id<$2;`
+        client.query(sql,[(day*10)-10,day*10],(err,result) => {
             if (err) throw err;
-            res.json(result);
+            res.json(result.rows);
         })
         }
         catch(error) {
@@ -290,9 +354,9 @@ languages.forEach(lang => {
         try {
             const {day} = req.params
             let sql = `SELECT * FROM words${lang} WHERE word_id < ${day*10}`
-            db.query(sql,(err,result) => {
+            client.query(sql,(err,result) => {
                 if (err) throw err;
-                res.json(result)
+                res.json(result.rows)
             })
         }
         catch(error) {
@@ -302,10 +366,10 @@ languages.forEach(lang => {
 
 app.get(`/questions${lang}`, async (req,res) => {
     try {
-        let sql = `SELECT * FROM questions${lang}`
-        db.query(sql,(err,result) => {
+        const sql = `SELECT * FROM questions${lang}`
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(error) {
@@ -318,9 +382,9 @@ app.get(`/lesson${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
         let sql = `SELECT * FROM day${lang} WHERE dayID=${day};`
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(error) {

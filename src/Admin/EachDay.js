@@ -76,7 +76,7 @@ const EachDay = ({match}) => {
                             uniqueVerbs.push(obj)
                         } 
                     }
-                if (obj.grammar==='adjective' || obj.grammar.includes('hasAdj')) {
+                if (obj.grammar==='adjective' || obj.grammar.includes('hasadj')) {
                     adjectives.push(obj.word)
                 }
                 if (obj.grammar.includes('noun')) {
@@ -94,7 +94,7 @@ const EachDay = ({match}) => {
             .then(res => res.json())
             .then(async (adjectives) => {
                 if (adjectives.length >0) {
-                const fields = Object.keys(adjectives[0]).filter(fields => (fields !=='aID' && fields!=='word' && fields!=='word_id'))
+                const fields = Object.keys(adjectives[0]).filter(fields => (fields !=='aid' && fields!=='word' && fields!=='word_id'))
                 const values = adjectives.map(obj => {
                     return Object.values(obj).filter(words => isNaN(words)) // only the words
                 })
@@ -111,7 +111,7 @@ const EachDay = ({match}) => {
             .then(res => res.json())
             .then(async (nouns) => {
                 if (nouns.length >0) {
-                const fields = Object.keys(nouns[0]).filter(fields => (fields !=='nID' && fields!=='word' && fields!=='word_id'))
+                const fields = Object.keys(nouns[0]).filter(fields => (fields !=='nid' && fields!=='word' && fields!=='word_id'))
                 fieldArr.push(fields)
                 const values = nouns.map(obj => {
                     return Object.values(obj).filter(words => isNaN(words)) // only the words
@@ -137,7 +137,7 @@ const EachDay = ({match}) => {
             // })
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
-            const verbId = data.filter(obj => obj.vID !== null)
+            const verbId = data.filter(obj => obj.vid !== null)
             
             // const adjectives = data.filter(obj => obj.aID !==null)
             // const nouns = data.filter(obj => obj.nID !==null)
@@ -159,7 +159,7 @@ const EachDay = ({match}) => {
                 // get all the data of the vId's
                 // itereate over the verbs we have the index is the verb id
                 verbId.forEach(obj => {
-                    const id = obj.vID -1
+                    const id = obj.vid -1
                     // check to see if we already have the verb first
                     const arr = Object.values(verbs[id]).slice(1).map(word => {
                         // itereate over that array and see if it has a comma if it does split it  
@@ -180,14 +180,12 @@ const EachDay = ({match}) => {
                await fetch(`/day${lang}${day+1}`)
                 .then(res => res.json())
                 .then(async (sentences) => {
-
-                    
                 setSentences(sentences)
 
         
                 // if this day is not true then we need to set the qform to something
                 if (!thisDay && lang !=='spanish') {
-                const qform = await Promise.all(sentences.map(async (obj) => [obj.id,await translateThis(underScore(obj[`${lang}S`],ultimate))]))
+                const qform = await Promise.all(sentences.map(async (obj) => [obj.id,await translateThis(underScore(obj[`${lang}s`],ultimate))]))
                     fetch(`/setqform${lang}${day}`, {
                     headers: {
                     'Content-type': 'application/json'
@@ -416,10 +414,10 @@ const EachDay = ({match}) => {
         <td className={submited}>
         <p><b>{item.id}: {item.word}</b></p>
         <p>{item.way}</p>
-        <p>{item.englishS}</p>
+        <p>{item.englishs}</p>
         </td>
         <td className={submited}>
-        <p>{higlight(item[`${lang}S`],learnedWords)}</p>
+        <p>{higlight(item[`${lang}s`],learnedWords)}</p>
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
         </td>
         {submited ?
