@@ -12,7 +12,7 @@ const AdminHome = ({match}) => {
         .then(res => res.json())
         .then(data => {
             let empty = new Array(500).fill(false)
-            data.forEach(obj => empty[obj.dayID] = true)
+            data.forEach(obj => empty[obj.dayid] = true)
             setCompleted(empty)
         })
     }, [lang])

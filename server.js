@@ -1,9 +1,13 @@
 const express = require('express')
-const mysql = require('mysql')
 const {Client} = require('pg')
 const dotenv = require('dotenv');
 dotenv.config()
 const cors = require('cors');
+const fs = require('fs')
+const twenty16 = './database/frequentWords/2016'
+const languages = require('./languages')
+/* All Old MySQL databases
+// const mysql = require('mysql')
 const createSpanishSQL = require('./database/spanish/createSpanishSQL')
 const createVerbsSQL = require('./database/spanish/createVerbsSQL')
 const spanishGrammar = require('./database/spanish/grammar')
@@ -14,29 +18,27 @@ const russianSQL = require('./database/russian/russianSQL')
 const russianVerbs = require('./database/russian/russianVerbSQL')
 const russianNouns = require('./database/russian/nounSQL')
 const russianAdjectives = require('./database/russian/adjective')
-const fs = require('fs')
-const twenty16 = './database/frequentWords/2016'
-const languages = require('./languages')
 const exportCSV = require('./database/exportCSV')
 const createTables = require('./database/createTables')
 const migrate = require('./database/migrateCSV')
+*/
 
 
 // create connection mysql
-const db = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-})
+// const db = mysql.createConnection({
+//     host: process.env.HOST,
+//     user: process.env.USER,
+//     password: process.env.PASSWORD,
+//     database: process.env.DATABASE,
+// })
 
 // connect
-db.connect((err) => {
-    if(err) {
-        throw err;
-    } 
-    console.log('My sql connected...')
-})
+// db.connect((err) => {
+//     if(err) {
+//         throw err;
+//     } 
+//     console.log('My sql connected...')
+// })
 
 // postgres
 
@@ -307,9 +309,9 @@ app.get('/languagewords',async (req,res) => {
 app.get('/languages', async (req,res) => {
     try{   
         const sql="SELECT lang FROM languages"
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result.map(obj => obj.lang))
+            res.json(result.rows.map(obj => obj.lang))
         })
 
     }catch(error) {
@@ -381,7 +383,7 @@ app.get(`/questions${lang}`, async (req,res) => {
 app.get(`/lesson${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        let sql = `SELECT * FROM day${lang} WHERE dayID=${day};`
+        let sql = `SELECT * FROM day${lang} WHERE dayid=${day};`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -403,16 +405,25 @@ app.patch(`/update${lang}`, async (req,res) => {
             return str + obj.question + '<p>'
         },'')
         const solutionStr = solution.reduce((str, obj) => {
-            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishS}<p>${obj.spanishS}<p>`
+            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishs}<p>${obj.spanishs}<p>`
         },'')
-        const arr = [id,questionStr,solutionStr,usedVerbs]
-        let sql = `REPLACE INTO day${lang} VALUES (?);`
-        db.query(sql,[arr], (err,result) => {
+        const arr = [id,`E'${questionStr.replace(/'/g, "\\'")}'`,`E'${solutionStr.replace(/'/g, "\\'")}'`,`'${usedVerbs}'`]
+        const sql = `INSERT INTO day${lang} VALUES (${arr}) ON CONFLICT (dayid) DO UPDATE
+        SET lesson=EXCLUDED.lesson, solution=EXCLUDED.solution, verbs=EXCLUDED.verbs;`
+        client.query(sql, (err,result) => {
             if (err) throw err;
         })
-        sql = `REPLACE INTO questions${lang} VALUES ?;`
-        db.query(sql,[questions], (err,result) => {
-            if (err) throw err;
+
+        // to update the questions
+        questions.forEach((arr,i) => {
+            arr[1] = `E'${arr[1].replace(/'/g, "\\'")}'`
+            const updateSQL =`INSERT INTO questions${lang} VALUES (${arr}) ON CONFLICT (id) DO UPDATE
+            SET question=EXCLUDED.question`
+            client.query(updateSQL,(err,result) => {
+                if (err) throw err;
+                
+            })
+
         })
     }
     catch(err) {
@@ -427,14 +438,14 @@ app.patch(`/setqform${lang}:day`, async (req,res) => {
         qform.forEach(translation => {
             // to escape the apstrophys
             const escape = translation[1].replace(/'/g, "\\'")
-            const sql=`UPDATE sentences${lang} SET qform='${escape}' WHERE id=${translation[0]}`
-            db.query(sql,(err,result) => {
+            const sql=`UPDATE sentences${lang} SET qform=E'${escape}' WHERE id=${translation[0]}`
+            client.query(sql,(err,result) => {
                 if (err) throw err;
             })
         })
 
-        const finishedSql=`INSERT INTO day${lang} (dayID) VALUES (${day})`
-        db.query(finishedSql,(err,result) => {
+        const finishedSql=`INSERT INTO day${lang} (dayid) VALUES (${day})`
+        client.query(finishedSql,(err,result) => {
             if (err) throw err;
         })
 
@@ -452,10 +463,10 @@ app.patch(`/setqform${lang}:day`, async (req,res) => {
 
 app.get(`/completed${lang}`, async (req,res) => {
     try {
-        const sql=`SELECT dayID,verbs FROM day${lang}`
-        db.query(sql, (err, result) => {
+        const sql=`SELECT dayid,verbs FROM day${lang}`
+        client.query(sql, (err, result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(error) {
@@ -466,10 +477,10 @@ app.get(`/completed${lang}`, async (req,res) => {
 
 app.get(`/sentences${lang}`, async (req,res) => {
     try {
-        let sql = `SELECT * FROM sentences${lang}`
-        db.query(sql,(err,result) => {
+        const sql = `SELECT * FROM sentences${lang}`
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(err) {
@@ -480,9 +491,9 @@ app.get(`/sentences${lang}`, async (req,res) => {
 app.get(`/verbs${lang}`, async (req,res) => {
     try {
         let sql=`SELECT * FROM verbs${lang};`
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(error) {
@@ -497,7 +508,7 @@ app.patch(`/out${lang}verb`, async (req,res) => {
     try{
         const {obj} = req.body
         const sql=`UPDATE words${lang} SET vID=NULL WHERE word_id=${obj.word_id}`
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err)throw err;
         })
     }
@@ -511,9 +522,9 @@ app.get(`/adjectives${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
         const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10}`
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
     }
     catch(error) {
@@ -526,9 +537,9 @@ app.get(`/nouns${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
         const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10}`
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-                res.json(result)
+                res.json(result.rows)
         })
     }
     catch(error) {
@@ -603,8 +614,8 @@ app.post('/testuser', (req,res) => {
         const userArr = req.body.map(obj => {
             return Object.values(obj)
         })
-        let sql = 'INSERT INTO users(email,purchased,created,pid,lastSent,unsubscribe,deactivated) VALUES ?;'
-        db.query(sql,[userArr], (err,result) => {
+        let sql = 'INSERT INTO users(email,purchased,created,pid,lastSent,unsubscribe,deactivated) VALUES $1;'
+        client.query(sql,[userArr], (err,result) => {
             if (err) throw err;
             console.log('sent User')
         })
@@ -619,9 +630,9 @@ app.post('/testuser', (req,res) => {
 app.get('/getusers', (req,res) => {
     try {
         let sql = "SELECT * FROM users;"
-        db.query(sql,(err,result) => {
+        client.query(sql,(err,result) => {
             if (err) throw err;
-            res.json(result)
+            res.json(result.rows)
         })
 
     }

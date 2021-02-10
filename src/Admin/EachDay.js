@@ -40,12 +40,12 @@ const EachDay = ({match}) => {
         let thisDay = false
         let usedVerbs = []
         for (let i=0; i<completed.length;i++) {
-            const {dayID,verbs} = completed[i]
+            const {dayid,verbs} = completed[i]
             if (verbs) {
                 const arr = verbs.split(',').filter(word => word.length>0)
                 usedVerbs.push(arr)
             }
-            if (dayID ===day) {
+            if (dayid ===day) {
                 if (verbs) {
                 setUsedVerbs(verbs)
                 } else {
@@ -69,7 +69,7 @@ const EachDay = ({match}) => {
             const usedWords = data.map((obj,i) => {
                 if (i>=(day*10) && i<=((day+1)*10)) {
                     uniqueWords.push(obj.word)
-                    if (obj.vID !==null) {
+                    if (obj.vid !==null) {
                         // itereate over the usedVerbs to see if we already have it
                         const infinitive = obj.grammar.split('-')[1]
                         if (justVerbs.indexOf(infinitive) ===-1) {
@@ -220,7 +220,7 @@ const EachDay = ({match}) => {
             })
             let final = Array(dayArr.length).fill()
             dayArr.forEach(obj => {
-                const index = obj.id.split('-')[1]
+                const index = obj.id.split('-')[1].trim()
                 final[index] = obj
             })
             newArr[day] = final
@@ -263,7 +263,7 @@ const EachDay = ({match}) => {
         else {
             edited.push({
                 id: `${day}-${questions[day].length}`,
-                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
+                question: `${sentences[questions[day].length].englishs} ${newQuestion}`,
                 active:false
             })
             
