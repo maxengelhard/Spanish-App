@@ -233,6 +233,7 @@ const EachDay = ({match}) => {
             })
             let final = Array(dayArr.length).fill()
             dayArr.forEach(obj => {
+                console.log(obj.id)
                 const index = obj.id.split('-')[1].trim()
                 final[index] = obj
             })

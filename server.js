@@ -417,9 +417,10 @@ app.patch(`/update${lang}`, async (req,res) => {
         // to update the questions
         questions.forEach((arr,i) => {
             arr[1] = `E'${arr[1].replace(/'/g, "\\'")}'`
-            const updateSQL =`INSERT INTO questions${lang} VALUES (${arr}) ON CONFLICT (id) DO UPDATE
-            SET question=EXCLUDED.question`
+            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]}) ON CONFLICT (id) DO UPDATE
+            SET question=${arr[1]}`
             client.query(updateSQL,(err,result) => {
+                console.log(updateSQL)
                 if (err) throw err;
                 
             })
