@@ -522,7 +522,7 @@ app.patch(`/out${lang}verb`, async (req,res) => {
 app.get(`/adjectives${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM adjectives${lang} WHERE completed=1`
+        const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10}`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -537,7 +537,7 @@ app.get(`/adjectives${lang}:day`, async (req,res) => {
 app.get(`/nouns${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM nouns${lang} WHERE completed=1`
+        const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10}`
         client.query(sql,(err,result) => {
             if (err) throw err;
                 res.json(result.rows)
