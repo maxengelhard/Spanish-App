@@ -400,7 +400,7 @@ app.patch(`/update${lang}`, async (req,res) => {
     try {
         const id = req.body.day
         const {lesson,solution,usedVerbs} = req.body
-        const questions = lesson.map(obj => [obj.id,obj.question])
+        const questions = lesson.map(obj => [obj.id,obj.question,obj.upper])
         const questionStr = lesson.reduce((str, obj) => {
             return str + obj.question + '<p>'
         },'')
@@ -417,10 +417,10 @@ app.patch(`/update${lang}`, async (req,res) => {
         // to update the questions
         questions.forEach((arr,i) => {
             arr[1] = `E'${arr[1].replace(/'/g, "\\'")}'`
-            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]}) ON CONFLICT (id) DO UPDATE
-            SET question=${arr[1]}`
+            arr[2] = `E'${arr[2].replace(/'/g,"\\'")}'`
+            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]}) ON CONFLICT (id) DO UPDATE
+            SET question=${arr[1]}, upper=${arr[2]}`
             client.query(updateSQL,(err,result) => {
-                console.log(updateSQL)
                 if (err) throw err;
                 
             })
@@ -522,7 +522,7 @@ app.patch(`/out${lang}verb`, async (req,res) => {
 app.get(`/adjectives${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10}`
+        const sql=`SELECT * FROM adjectives${lang} WHERE completed=1`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -537,7 +537,7 @@ app.get(`/adjectives${lang}:day`, async (req,res) => {
 app.get(`/nouns${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10}`
+        const sql=`SELECT * FROM nouns${lang} WHERE completed=1`
         client.query(sql,(err,result) => {
             if (err) throw err;
                 res.json(result.rows)

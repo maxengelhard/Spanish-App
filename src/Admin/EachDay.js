@@ -6,7 +6,8 @@ import higlight from './highlight'
 import underScore from './underscore'
 import translateThis from './translateThis'
 import solution from './solution'
-
+import underQForm from './under_q_form'
+// import SpanishDay from './SpanishDay'
 
 const EachDay = ({match}) => {
     const last = match.url.lastIndexOf('/')
@@ -150,6 +151,7 @@ const EachDay = ({match}) => {
                 fieldArr.push([])
                 }
             })
+           
 
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
@@ -182,7 +184,6 @@ const EachDay = ({match}) => {
 
                 // see if we already have a day noun or adjective already in
                 // take out the unqieWords from the ultimate and see if there are still in the ultimate
-                
                 setNouns(dayNouns)
                 setAdjectives(dayAdjectives)
                 setFields(fieldArr)
@@ -193,7 +194,9 @@ const EachDay = ({match}) => {
                await fetch(`/day${lang}${day+1}`)
                 .then(res => res.json())
                 .then(async (sentences) => {
-                setSentences(sentences)
+                    // sort by id
+                    const sorted = sentences.sort((a,b) => a.id - b.id)
+                setSentences(sorted)
 
         
                 // if this day is not true then we need to set the qform to something
@@ -233,15 +236,12 @@ const EachDay = ({match}) => {
             })
             let final = Array(dayArr.length).fill()
             dayArr.forEach(obj => {
-                console.log(obj.id)
                 const index = obj.id.split('-')[1].trim()
-                final[index] = obj
+                final[index] = {...obj,added:[]}
             })
             newArr[day] = final
             setQuestions(newArr)
         })
-
-
      
         // to change and check if the day is already in the SQL 
         //if it is then we are updating not inserting into SQLs
@@ -260,6 +260,7 @@ const EachDay = ({match}) => {
     const addQ = (newQuestion) => {
         let newArr = [...questions]
         let edited = questions[day]
+        // check to see if we have any upperCase on the ends
         // to check if we are editing
         const index = edited.reduce((value, obj,index) => {
             if (obj.active ===true) {
@@ -267,17 +268,25 @@ const EachDay = ({match}) => {
             }
             return value;
         },false)
+        
+
         if (Number.isInteger(index)) {
+        const highlitedText = higlight(sentences[index].spanishs,learnedWords)
+        const withUpper = solution(highlitedText[1],newQuestion)
             edited[index] = {
             id: `${day}-${index}`,
             question: `${newQuestion}`,
+            upper: withUpper,
             active:false
         }
         }
         else {
+        const highlitedText = higlight(sentences[questions[day].length].spanishs,learnedWords)
+        const withUpper = solution(highlitedText[1],newQuestion)
             edited.push({
                 id: `${day}-${questions[day].length}`,
-                question: `${sentences[questions[day].length].englishS} ${newQuestion}`,
+                question: `${sentences[questions[day].length].englishs} ${newQuestion}`,
+                upper: withUpper,
                 active:false
             })
             
@@ -285,10 +294,12 @@ const EachDay = ({match}) => {
         newArr[day] = edited
         setQuestions(newArr)
     }
+
+
     const editQ = index => (e) => {
         let newArr = [...questions]
         let edited = [...questions[day]]
-        edited[index] = {...questions[day][index], active:!newArr[day][index].active }
+        edited[index] = {...questions[day][index], active:!newArr[day][index].active}
         newArr[day] = edited
         setQuestions(newArr)
     }
@@ -378,6 +389,7 @@ const EachDay = ({match}) => {
         const closed = [...nouns].filter(word => word!==noun)
         setNouns(closed)
     }
+
     
     return (
     loading ? <div className="spin"></div> :
@@ -386,7 +398,24 @@ const EachDay = ({match}) => {
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
     </div>
-    {(verbs.length > 0 && lang==='spanish') ?
+    {/*
+    <SpanishDay 
+    verbs={verbs} 
+    adjectives={adjectives} 
+    nouns={nouns}
+    completeAdj={completeAdj}
+    fields={fields}
+    usedNouns={usedNouns}
+    setUsedAdjectives={setUsedAdjectives}
+    completeNoun={completeNoun}
+    setUsedNouns={setUsedNouns}
+    lang={lang}
+    setVerbs={setVerbs}
+    usedVerbs={usedVerbs}
+    setUsedVerbs={setUsedVerbs}
+    setAdjectives={setAdjectives}
+    setNouns={setNouns}/>*/}
+   {verbs.length > 0 ?
     <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Verbs</h3>
         {verbs.map((obj,i) => {
@@ -403,10 +432,8 @@ const EachDay = ({match}) => {
                  Out</button>
              </div>
          })}
-    </div> : null
-}
-{/* Adjectives */}
-    {(adjectives.length > 0 && lang==='spanish') ?
+    </div> : null}
+    {adjectives.length > 0 ?
     <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Adjectives</h3>
         {adjectives.map((adjective,i) => {
@@ -429,10 +456,8 @@ const EachDay = ({match}) => {
                  Complete</button>
              </div>
          })}
-    </div> : null
-}
-{/* {nouns} */}
-    {(nouns.length > 0 && lang==='spanish') ?
+    </div> : null}
+    {nouns.length > 0 ?
     <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Nouns</h3>
         {nouns.map((noun,i) => {
@@ -457,8 +482,7 @@ const EachDay = ({match}) => {
               </button>
              </div>
          })}
-    </div> : null
-}
+    </div> : null}
     <div className='eachDayPage'>
     <table className='adminTable'>
         <thead>
@@ -481,7 +505,8 @@ const EachDay = ({match}) => {
         </td>
         <td className={submited}>
         {highlitedText[0]}
-        {lastSub ===index ? <NewQuestion addQ={addQ} qform={item.qform}/> :null}
+        {lastSub ===index ? <NewQuestion addQ={addQ} qform={underQForm(highlitedText[0])}/> :null}
+        {item.qform}
         </td>
         {submited ?
         <td>
@@ -493,7 +518,9 @@ const EachDay = ({match}) => {
         addQ={addQ} 
         editQ={editQ} 
         />
-        {solution(highlitedText[1],questions[day][index].question)}
+        <div style={{background: 'yellow'}}>
+        {questions[day][index].upper}
+        </div>
         { lastSub-1 ===index ?
         <Link to={`/admin/${lang}`}>
     <button onClick={() => { updateLesson()}}>

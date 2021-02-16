@@ -4,19 +4,22 @@ const solution = (wordArr,sentence) => {
     let count = 0;
     const sentenceArr = sentence.split(' ')
     return sentenceArr.reduce((acum,value) => {
-        if (value.includes('_')) {
+        if (value ==='_') {
             const regex=value.replace(/_/g,wordArr[count])
-            acum+=regex + ' '
             count++
-        }
-        else if (value.includes('__')) {
-            const regex=value.replace(/__/g,wordArr[count]+wordArr[count+1])
-            acum+=regex + ' '
+            return acum+=regex + ' '
+        } else if (value.includes('__')) {
+            const regex=value.replace(/__/g,wordArr[count]+wordArr[count+1]).replace(/-/g,'')
             count+=2
-        } else {
-            acum+=value + ' '
+            return acum+=regex + ' '
         }
-        return acum
+        else if (value.includes('_')) {
+            const regex=value.replace(/_/g,wordArr[count]).replace(/-/g,'')
+            count++
+            return acum+=regex + ' '
+        } else {
+           return acum+=value + ' '
+        }
 
     },'')
 }
