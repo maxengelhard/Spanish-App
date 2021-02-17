@@ -33,13 +33,15 @@ const SampleEmail = () => {
             <button className={day===2? 'active': ''} onClick={() => setday(2)}>After Week 1</button>
             <button className={day===3? 'active': ''} onClick={() => setday(3)}>After One Month</button>
             </div>
+            <div className='newWords'>
             New Words:
             <ol>
                 {newWords.map((word,i) => {
 
-                    return <li key={i}>{word}</li>
+                    return <li key={i}>{word} </li>
                 })}
             </ol>
+            </div>
             <h1>Assignment: Fill In The Blanks</h1>
             <ul>
             {lesson.split('<p>').map((question,i) => {
@@ -47,7 +49,6 @@ const SampleEmail = () => {
                 return <li key={i}>{match ? question.replaceAll(match[0],match[0][0]) : question}</li>
             })}
             </ul>
-
             <h1>Solutions: <b>Pro Version</b></h1>
             <ul>
             {solution.split('<p>').map((question,i) => {
@@ -55,6 +56,9 @@ const SampleEmail = () => {
                 const start = i ===0 ? 4 : 5 // the first is different
                 if (question.includes('<h4>')) {
                     return <li key={i}><h4>{question.substring(start,question.length-5)}</h4></li>
+                } 
+                if (question.includes('<b>')) {
+                    return <li key={i}><b>{question.slice(3)}</b></li>
                 }
                 return <li key={i}>{match ? question.replaceAll('.','. ').replaceAll(match[0], `${match[0]} `): question.replaceAll('.','. ')}</li>
             })}

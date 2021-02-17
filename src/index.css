@@ -11,6 +11,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* nav menu */
@@ -185,6 +186,7 @@ nav {
   padding: 20px;
   height: 500px;
   color: white;
+  width: 90%;
 }
 
 .paragraph1 ul {
@@ -233,12 +235,14 @@ nav {
 /* start of sample email */
 
 .sampleEmail {
-  text-align: center;
-  width: 100%;
+  width: 90%;
   margin: auto;
   height: 100%;
-  background-color: blue;
+  margin-left: 10px;
+  overflow-x: hidden;
+  width: 100%;
 }
+
 
 .sampleButtons {
   display: flex;
@@ -249,7 +253,12 @@ nav {
 .sampleButtons > button {
   margin: 0 10px;
 }
+.newWords li {
+  display: inline;
+}
 
+
+/* End Of sample email*/
 .active {
   background-color: green;
 }

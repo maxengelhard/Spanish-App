@@ -401,11 +401,11 @@ app.patch(`/update${lang}`, async (req,res) => {
         const id = req.body.day
         const {lesson,solution,usedVerbs} = req.body
         const questions = lesson.map(obj => [obj.id,obj.question,obj.upper])
-        const questionStr = lesson.reduce((str, obj) => {
-            return str + obj.question + '<p>'
+        const questionStr = lesson.reduce((str, obj,i) => {
+            return str + solution[i].englishs + ' -> '+ obj.question + '<p>'
         },'')
         const solutionStr = solution.reduce((str, obj,i) => {
-            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishs}<p>${obj.spanishs}<p>`
+            return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishs}<p><b>${lesson[i].upper.trim()}<p>Full Spanish Text: ${obj.spanishs}<p>`
         },'')
         const arr = [id,`E'${questionStr.replace(/'/g, "\\'")}'`,`E'${solutionStr.replace(/'/g, "\\'")}'`,`'${usedVerbs}'`]
         const sql = `INSERT INTO day${lang} VALUES (${arr}) ON CONFLICT (dayid) DO UPDATE
@@ -574,6 +574,19 @@ app.patch(`/update${lang}adjectives:adj`, async (req,res) => {
         client.query(sql,(err,result) => {
             if (err) throw err;
         })
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
+
+app.get(`/day${lang}`, async (req,res) => {
+    try {
+        const sql=`SELECT * FROM day${lang} ORDER BY dayid`
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result.rows)
         })
     }
     catch(error) {
