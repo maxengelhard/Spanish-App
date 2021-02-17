@@ -156,8 +156,6 @@ const EachDay = ({match}) => {
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vid !== null)
-            
-            
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
             .then(async (verbs) => {
@@ -168,10 +166,15 @@ const EachDay = ({match}) => {
                     const id = obj.vid -1
                     // check to see if we already have the verb first
                     const arr = Object.values(verbs[id]).slice(1).map(word => {
-                        // itereate over that array and see if it has a comma if it does split it  
-                        if (word.includes(',')) {
-                            return word.split(',')
-                        }  else return word                   
+                        // itereate over that array and see if it has a comma if it does split it
+                        const string = word ? word : ''
+                        if (string.includes(',')) {
+                            return string.split(',')
+                     } else if (string.slice(string.length-3)==='ido') {
+                         // this is for examples such as habidos
+                         return [string,string+'s']
+                     }
+                     else return string                   
                     })
                     verbArr.push([].concat.apply([],arr)) // to make it one array
                     // does it include it and if it does then show what form it is of the verb
@@ -217,9 +220,6 @@ const EachDay = ({match}) => {
 
     })
 
-
-        
-
         // to change questions if we have any
         await fetch(`/questions${lang}`)
         .then(res => res.json())
@@ -237,7 +237,7 @@ const EachDay = ({match}) => {
             let final = Array(dayArr.length).fill()
             dayArr.forEach(obj => {
                 const index = obj.id.split('-')[1].trim()
-                final[index] = {...obj,added:[]}
+                final[index] = {...obj}
             })
             newArr[day] = final
             setQuestions(newArr)
@@ -285,7 +285,7 @@ const EachDay = ({match}) => {
         const withUpper = solution(highlitedText[1],newQuestion)
             edited.push({
                 id: `${day}-${questions[day].length}`,
-                question: `${sentences[questions[day].length].englishs} ${newQuestion}`,
+                question: `${newQuestion}`,
                 upper: withUpper,
                 active:false
             })
@@ -393,7 +393,7 @@ const EachDay = ({match}) => {
     
     return (
     loading ? <div className="spin"></div> :
-    <div style={{width: '100%', overflowX: 'hidden'}}> 
+    <div style={{width: '100%', overflowX: 'hidden',paddingBottom:'60px',paddingRight:'5px'}}> 
     <div className='words'>
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
@@ -506,7 +506,7 @@ const EachDay = ({match}) => {
         <td className={submited}>
         {highlitedText[0]}
         {lastSub ===index ? <NewQuestion addQ={addQ} qform={underQForm(highlitedText[0])}/> :null}
-        {item.qform}
+        {' ' + item.qform}
         </td>
         {submited ?
         <td>

@@ -1,7 +1,9 @@
 const under_q_form = (str) => {
     const arr = str.split(' ')
     return arr.map(word => {
-
+        if (!isNaN(parseInt(word)) || word==='-' || word==='.') {
+            return word
+        } 
         if (word===word.toUpperCase()) {
             if (word.includes('-')) {
                 return '__'
@@ -10,9 +12,9 @@ const under_q_form = (str) => {
         } else if (word.match('[A-Z]')) {
             const index = word.match('[A-Z]').index
             if (word.length-index <4) {
-                return '_'
+                return word.slice(0,index) +'_'
             } else {
-                return '__'
+                return word.slice(0,index) +'__'
             }
             
         } return word

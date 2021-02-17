@@ -404,7 +404,7 @@ app.patch(`/update${lang}`, async (req,res) => {
         const questionStr = lesson.reduce((str, obj) => {
             return str + obj.question + '<p>'
         },'')
-        const solutionStr = solution.reduce((str, obj) => {
+        const solutionStr = solution.reduce((str, obj,i) => {
             return `${str} <h4>${obj.word}: ${obj.way}</h4><p>${obj.englishs}<p>${obj.spanishs}<p>`
         },'')
         const arr = [id,`E'${questionStr.replace(/'/g, "\\'")}'`,`E'${solutionStr.replace(/'/g, "\\'")}'`,`'${usedVerbs}'`]
@@ -417,7 +417,7 @@ app.patch(`/update${lang}`, async (req,res) => {
         // to update the questions
         questions.forEach((arr,i) => {
             arr[1] = `E'${arr[1].replace(/'/g, "\\'")}'`
-            arr[2] = `E'${arr[2].replace(/'/g,"\\'")}'`
+            arr[2] = arr[2] ? `E'${arr[2].replace(/'/g,"\\'")}'` : null
             const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]}) ON CONFLICT (id) DO UPDATE
             SET question=${arr[1]}, upper=${arr[2]}`
             client.query(updateSQL,(err,result) => {
@@ -491,7 +491,7 @@ app.get(`/sentences${lang}`, async (req,res) => {
 
 app.get(`/verbs${lang}`, async (req,res) => {
     try {
-        let sql=`SELECT * FROM verbs${lang};`
+        let sql=`SELECT * FROM verbs${lang} ORDER BY vid;`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -522,7 +522,7 @@ app.patch(`/out${lang}verb`, async (req,res) => {
 app.get(`/adjectives${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10}`
+        const sql=`SELECT * FROM adjectives${lang} WHERE word_id<${(parseInt(day)+1)*10} ORDER BY aid`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -537,7 +537,7 @@ app.get(`/adjectives${lang}:day`, async (req,res) => {
 app.get(`/nouns${lang}:day`, async (req,res) => {
     try {
         const {day} = req.params
-        const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10}`
+        const sql=`SELECT * FROM nouns${lang} WHERE word_id<${(parseInt(day)+1)*10} ORDER BY nid`
         client.query(sql,(err,result) => {
             if (err) throw err;
                 res.json(result.rows)

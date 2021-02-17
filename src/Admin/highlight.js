@@ -1,15 +1,20 @@
 const objectPronouns = require('./objectPronouns')
 
 const ending = (num,word) => {
-    const prev = ['a','e','i']
-    const accent = ['á','í','é']
+    const prev = ['a','e','i','o']
+    const accent = ['á','í','é','ó']
     const end = word.slice(word.length-num,word.length)
     const before = word[word.length-(num+1)]
+    const verb = word.slice(0,word.length-num)
     if (word.length > num && objectPronouns[num].includes(end)) {
         const command = prev.includes(before)
         if (command) {
-             const has_accent = word.split('').some(el => accent.includes(el))
+             const has_accent = verb.split('').some(el => accent.includes(el))
             if (has_accent) {
+                // off cases
+                if (word ==='árboles') {
+                    return false
+                }
                 // try to replace the accent as to check if we already have that verb
                 const replace_acc = (match,offset,string) => {
                     const obj = {
@@ -19,18 +24,24 @@ const ending = (num,word) => {
                     }
                     return obj[match]
                 }
-                const og_verb = word.replace(/á|í|é/g,replace_acc).slice(0,word.length-num)
+                const og_verb = verb.replace(/á|í|é/g,replace_acc)
                 
                 return [og_verb,end]
-            }
+            } else if (verb ==='da' || verb==='esta' || verb==='di') {
+                // irregulars
+            return [verb,end]
+        }
 
         } else if (before==='r') {
             // off case
-            if (word==='parte') {
+            if (word==='parte' || word==='fuerte' || word==='enorme' || word==='suerte'|| word==='norte'
+            || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte') {
                 return false
             }
             // infinitive
-            return [word.slice(0,word.length-num),end]
+            return [verb,end]
+        } else if (before==='n' && verb==='pon') {
+            return [verb,end]
         }
     }  else {
         return false
@@ -42,6 +53,10 @@ const loop_end = (word,learnedWords,solutionArr) => {
     for (let i=6;i>=2;i--) {
         const result = ending(i,word)
         if (result) {
+            let irregular = '&' // something that won't be in learned words
+            if (result[0]==='vamo') {
+                irregular='va'
+            }
             if (i>3) {
                 // find where the L is that's the index
                 const index = result[1].indexOf('l')
@@ -57,7 +72,8 @@ const loop_end = (word,learnedWords,solutionArr) => {
                 }
                 result[1] = front + back
             }
-             else if (learnedWords.includes(result[0])) {
+             else if (learnedWords.includes(result[0]) || learnedWords.includes(irregular)) {
+                 // to check to see if we have the verb
                     result[0] = result[0].toUpperCase()
                     solutionArr.push(result[0])
                 } else {
@@ -79,15 +95,15 @@ const higlight = (str,learnedWords) => {
     const wordArr = str.toLowerCase().split(' ')
     let solutionArr = []
     const text = wordArr.reduce((sentence, word) => {
-        let punc = word.match('\\?|\\!|¿|¡|-|"|\\.|\\,')
+        let punc = word.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
         if (punc) {
             let puncWord = ''
             while(punc) {
                 puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)
-                punc = puncWord.match('\\?|\\!|¿|¡|-|"|\\.|\\,')
+                punc = puncWord.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
             }
             // endings
-            if (learnedWords.includes(puncWord)) {    
+            if (learnedWords.includes(puncWord) && word!=='-' && word!=='.') {
                 solutionArr.push(word.toUpperCase())
                 return `${sentence + word.toUpperCase()} `
             } else {
