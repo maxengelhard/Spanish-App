@@ -17,16 +17,6 @@ const HowEmail = () => {
             <li>Learning the top 2000 most frequently used words will get you to 84% for non-fiction, 86.1% for fiction, and 92.7% for oral speech.</li>
             <li>And learning the top 3000 most frequently used words will get you to 88.2% for non-fiction, 89.6% for fiction, and 94.0% for oral speech.</li>
             </ul>
-            <p>Why use our email list?</p>
-            <p>You can easily go out and buy a dictionary (they even have the top 6000 words in a book)... it cost $35.35</p>
-            <p>Now here is an example email of ours. Take it for a spin</p>
-            <p>In the beggining you will get a list of new words. Starting with the most frequent words in Spanish and each day progressivley getting less and less frequent.</p>
-            <p>However, what's interesting about our system is that we will continually have you practiing all previous words the next day.</p>
-            <p>Becuase these are based off of frequency all of our sentences will have a higher probablity that the words you learned on your first day will be used on the 30th day as well</p>
-            <p>Take a look at how many worlds you would know after each day would</p>
-            <p>--------------------------------------</p>
-            <p>Then put in the clicker and how it would change</p>
-            <p>--------------------------------------</p>
             <p>The best way to learn is to practice. And practice repeadilty. This is what this email service finally accomplishes</p>
             <p>What you'll be getting: daily fun practice. Access to the top 5,000 frequent words. Repeated practice. Constant improvement.</p>
         </div>

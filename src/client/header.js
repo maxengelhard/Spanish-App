@@ -1,11 +1,21 @@
-import React , {useState} from 'react'
+import React , {useState,useEffect} from 'react'
 import ReactLogo from '../FluencyDaily.png'
-// import Logo from './getFiles'
 
 const Header = () => {
-    
     const [toggle, setToggle] = useState(false)
-    
+	const [scrollPosition, setScrollPosition] = useState(0);
+	const handleScroll = () => {
+    	const position = window.pageYOffset;
+    	setScrollPosition(position);
+	};
+
+	useEffect(() => {
+    	window.addEventListener('scroll', handleScroll, { passive: true });
+
+    	return () => {
+    	    window.removeEventListener('scroll', handleScroll);
+    	};
+	}, []);
 
     return (
         <nav>
@@ -17,11 +27,11 @@ const Header = () => {
 			<div className="line2"></div>
 			<div className="line3"></div>
 		</div>
+		{scrollPosition > 800 ?
 		<ul className={`${toggle ? 'nav-active': 'nav-links hide'}`} >
-			<li><a href="blog">Blog</a></li>
-			<li><a href="signUp">Sign Up</a></li>
-			<li><a href="logIn">Log In</a></li>
-		</ul>
+			<li className='access'><a href="signUp">GET STARTED</a></li>
+			<li className='access'><a href="logIn">I ALREADY HAVE AN ACCOUNT</a></li>
+		</ul>:null}
 		</div>
         </nav>
     )

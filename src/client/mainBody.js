@@ -4,26 +4,23 @@ const mainBody = () => {
     return (
         <div className='firstRow'>
             <div className='paragraph1'>
+                <div className='spacer'></div>
             <h1>Daily Spanish Pratice. <br/>It's Free</h1>
             <br/>
-            <p>Join self-taught Spanish teacher and lover of learning Max Engelhard 
-            with daily Spanish quizes, learning, and more!</p>
+            <p>Join the most scientific, fun, and effective method for learning Spanish Today!</p>
             <br/>
             <h3>Here's how it works</h3>
             <br/>
             <ul>
-                <li>Sign up to recieved a daily email of fun, helpful and engaging exercises</li>
-                <li>Try to solve the problems! It's fun and sharpens your mind</li>
-                <li><b>(Pro)</b> Recieve solutions with completee analysis, grammar descriptions, full list of use cases, and access all other languages!</li>
+                <li>Scientificially based around frequency of words and how they are used in sentences. You'll get real life examples!</li>
+                <li>Learn the language 10 words at a time by solving problems with interactive solutions. It's really fun!</li>
+                <li><b>(Pro)</b> Ready for more words? Unlock ulimited access to all 5,000 words and their uses!</li>
             </ul>
             </div>
             <div className='signUp1'>
-            <iframe width="80%" height="80%"
-            title='easySignUp' 
-            src="https://b0f291d8.sibforms.com/serve/MUIEAOweSYzz2zonZYGAjvtkUTBNLildhhdO4rJx_SWnFi0S1y6k4-CZtGdesQ9DWt_MreIpl2AACJk_Tn0RRYsa3u3FjhpX6tJaNDqMIEMdO_opC_if7u_SVGl4ug_Snn6FWw4f0KF5gV10pzYxVogMVe0qLXxcatF9FnB-A128Rks_EQC_fwebBystwqYAcOg2Fbzz4dxvvFPQ"
-            frameBorder="0" 
-            style={{display: 'block', marginLeft: 'auto', marginRight: 'auto',maxWidth: '100%'}}>
-            </iframe>
+            <h2>Subscribe</h2>
+            <h4>Master Spanish One Day At A Time</h4>
+            <button>Get Started</button>
             </div>
         </div>
     )

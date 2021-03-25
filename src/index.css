@@ -18,23 +18,32 @@ body {
 
 nav {
   display: flex;
-  background-color: white;
 	align-items: center;
-	height: 95px;
+	height: 100px;
 	font-family: "888", verdana, sans-serif;
 	position: fixed;
   width: 100%;
-  padding: 5px 30px;
+  padding: 5px 60px;
+  background-color: #ff1616;
 }
 
 .logo {
-  width: 105px;
-  height: 100%;
+  width: 170px;
+  height: 95%;
 }
 
 
 .menu {
   display: flex;
+}
+
+.access {
+  background-color: #58a700;
+  width: 200px;
+  height: 40px;
+  border-radius: 15px;
+  margin: 0px 50px; 
+  font-size: 13px;
 }
 
 
@@ -173,19 +182,80 @@ nav {
 
 /* end of nav menu*/
 
+/* start of register page */
+
+.register {
+  padding-top: 10px;
+  background-image: url('./mainImg.png');
+  background-position: center;
+  background-size: 30%;
+  background-repeat: no-repeat;
+  height: 60vh;
+  background-color: #ff1616;
+  display: flex;
+}
+
+.register h1 {
+  text-align: right;
+  align-self: flex-start;
+  justify-content: center;
+  color: #fff647;
+}
+
+.register li {
+  list-style: none;
+}
+
+.register a {
+  text-decoration: none;
+  color: white;
+}
+
+.register li:hover {
+  cursor: pointer;
+}
+
+.register ul {
+  align-self: flex-end;
+  padding-bottom: 15px;
+  margin-right: -25%;
+}
+
+.register li {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.access:hover {
+  cursor: pointer;
+}
+
+@media screen and (max-width: 800px) {
+  .register {
+    background-size: 60%;
+  }
+  .register h1 {
+    text-align: center;
+    width: 300px;
+  }
+  .register ul {
+    margin-right: -35px;
+  }
+}
+
+
+
+/* start of copy */
+
 .firstRow {
   display: flex;
-  background-image: url('./spainFlag.jpg');
-  background-position: center;
-  background-size: 100%;
-  background-repeat: no-repeat;
+  background-color: white;
 }
 
 .paragraph1 {
   flex: 50%;
-  padding: 20px;
+  padding: 50px 20px;
   height: 500px;
-  color: white;
   width: 90%;
 }
 
@@ -240,7 +310,6 @@ nav {
   height: 100%;
   margin-left: 10px;
   overflow-x: hidden;
-  width: 100%;
 }
 
 

@@ -46,6 +46,10 @@ const SampleEmail = () => {
             <ul>
             {lesson.split('<p>').map((question,i) => {
                 const match = question.match(/[!?]/)
+                if (question.includes('<h4>')) {
+                    const end_h4 = question.match('</h4>').index
+                    return <li key={i}><b>{question.substring(4,end_h4)}</b>{question.slice(end_h4+5)}</li>
+                }
                 return <li key={i}>{match ? question.replaceAll(match[0],match[0][0]) : question}</li>
             })}
             </ul>

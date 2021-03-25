@@ -398,23 +398,6 @@ const EachDay = ({match}) => {
         <h3>New Words</h3>
     {uniqueWords.map((word,i) => <div key={i}>{word}</div>)}
     </div>
-    {/*
-    <SpanishDay 
-    verbs={verbs} 
-    adjectives={adjectives} 
-    nouns={nouns}
-    completeAdj={completeAdj}
-    fields={fields}
-    usedNouns={usedNouns}
-    setUsedAdjectives={setUsedAdjectives}
-    completeNoun={completeNoun}
-    setUsedNouns={setUsedNouns}
-    lang={lang}
-    setVerbs={setVerbs}
-    usedVerbs={usedVerbs}
-    setUsedVerbs={setUsedVerbs}
-    setAdjectives={setAdjectives}
-    setNouns={setNouns}/>*/}
    {verbs.length > 0 ?
     <div className='newAdds' style={{display: 'flex'}}>
         <h3>New Verbs</h3>
