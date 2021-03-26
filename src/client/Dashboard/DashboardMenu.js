@@ -4,7 +4,7 @@ import {Link} from 'react-router-dom'
 const DashboardMenu = (props) => {
     const id = props.id
     return (
-        <div>
+        <div className='dashButton'>
            <Link to='/dashboard'><button>Dashboard</button></Link>
            <button>Shop</button>
            <button>Language</button>

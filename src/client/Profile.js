@@ -18,7 +18,7 @@ const Profile = ({match}) => {
             setEmail(email)
         }) }
         return false
-    },[])
+    },[id])
 
     const myRedirect = () => {
         if (redirect) {

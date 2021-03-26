@@ -6,7 +6,7 @@ const cors = require('cors');
 const languages = require('./languages')
 const {hash, compare} =require('bcryptjs')
 const cookieParser = require('cookie-parser')
-const {ensureLoggedIn,allowAccess} = require('./middleware')
+const {ensureLoggedIn} = require('./middleware')
 
 // postgres
 
@@ -88,9 +88,10 @@ languages.forEach(lang => {
         }
     })
 
-app.get(`/questions${lang}`, async (req,res) => {
+app.get(`/questions${lang}:day`, async (req,res) => {
     try {
-        const sql = `SELECT * FROM questions${lang}`
+        const {day} = req.params
+        const sql = `SELECT * FROM questions${lang} WHERE day=${day}`
         client.query(sql,(err,result) => {
             if (err) throw err;
             res.json(result.rows)
@@ -121,7 +122,7 @@ app.get(`/lesson${lang}:day`, async (req,res) => {
 app.patch(`/update${lang}`, async (req,res) => {
     try {
         const id = req.body.day
-        const {lesson,solution,usedVerbs} = req.body
+        const {lesson,solution,usedVerbs,highlightedWords} = req.body
         const questions = lesson.map(obj => [obj.id,obj.question,obj.upper])
         const questionStr = lesson.reduce((str, obj,i) => {
             return str + `<h4>${solution[i].word}: ${solution[i].way}</h4><p>`+ solution[i].englishs + ' -> '+ obj.question  + '->' + obj.upper + '<p>'
@@ -141,11 +142,12 @@ app.patch(`/update${lang}`, async (req,res) => {
         questions.forEach((arr,i) => {
             arr[1] = `E'${arr[1].replace(/'/g, "\\'")}'`
             arr[2] = arr[2] ? `E'${arr[2].replace(/'/g,"\\'")}'` : null
-            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]}) ON CONFLICT (id) DO UPDATE
-            SET question=${arr[1]}, upper=${arr[2]}`
-            client.query(updateSQL,(err,result) => {
+            const {word} = solution[i]
+            const highlight = highlightedWords[i]
+            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]},${id},'${word}',($1)) ON CONFLICT (id) DO UPDATE
+            SET question=${arr[1]}, upper=${arr[2]},day=${id},word='${word}', wordarray=($1)`
+            client.query(updateSQL,[highlight],(err,result) => {
                 if (err) throw err;
-                
             })
 
         })
@@ -271,38 +273,6 @@ app.get(`/nouns${lang}:day`, async (req,res) => {
     }
 })
 
-
-app.patch(`/update${lang}nouns:noun`, async (req,res) => {
-    try {
-        const {noun} = req.params
-        const entires = Object.entries(req.body[noun])
-        entires.forEach(pair => {
-        const sql=`UPDATE nouns${lang} SET ${pair[0]}='${pair[1]}' WHERE word='${noun}'`
-        client.query(sql,(err,result) => {
-            if (err) throw err;
-        })
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
-
-app.patch(`/update${lang}adjectives:adj`, async (req,res) => {
-    try {
-        const {adj} = req.params
-        const entires = Object.entries(req.body[adj])
-        entires.forEach(pair => {
-        const sql=`UPDATE adjectives${lang} SET ${pair[0]}='${pair[1]}' WHERE word='${adj}'`
-        client.query(sql,(err,result) => {
-            if (err) throw err;
-        })
-        })
-    }
-    catch(error) {
-        console.log(error)
-    }
-})
 
 app.get(`/day${lang}`, async (req,res) => {
     try {

@@ -12,7 +12,7 @@ const solution2 = "<h4>son: (music): sound</h4><p>The flamenco dancers moved to 
 const lesson3 = ''
 const solution3 = ''
 
-export default {
+module.exports = {
     lesson1,
     lesson2,
     lesson3,

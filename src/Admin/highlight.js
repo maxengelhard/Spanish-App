@@ -35,7 +35,7 @@ const ending = (num,word) => {
         } else if (before==='r') {
             // off case
             if (word==='parte' || word==='fuerte' || word==='enorme' || word==='suerte'|| word==='norte'
-            || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte') {
+            || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte' || word==='arte') {
                 return false
             }
             // infinitive

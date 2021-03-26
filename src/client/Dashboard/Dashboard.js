@@ -26,16 +26,13 @@ const Dashboard = () => {
         <div>
             {renderRedirect()}
             {id ?
-            <div className='dashboardMenu'>
-             <h1>Hello Max your email is max with id {id}</h1>
+             <Router>
              <DashboardMenu id={id}/>
-            <Router>
-            <Routes />
-            <Switch>
+             <Switch>
             <Route path='/dashboard' exact component={Lessons} />
+            <Routes />
             </Switch>
-            </Router>
-        </div>:null}
+        </Router>:null}
         </div>
     )
 }
