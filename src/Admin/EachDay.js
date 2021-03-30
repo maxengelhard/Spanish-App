@@ -152,6 +152,7 @@ const EachDay = ({match}) => {
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vid !== null)
+            console.log(verbId)
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
             .then(async (verbs) => {
@@ -159,9 +160,17 @@ const EachDay = ({match}) => {
                 // get all the data of the vId's
                 // itereate over the verbs we have the index is the verb id
                 verbId.forEach(obj => {
-                    const id = obj.vid -1
+                    const id = obj.vid
+                    const verbObj = verbs.filter(obj => obj.vid ===id)[0]
+                    
                     // check to see if we already have the verb first
-                    const arr = Object.values(verbs[id]).slice(1).map(word => {
+                    const arr = Object.values(verbObj).slice(1).map(word => {
+                        // if they are extra verbs then return the array
+                        // one verb we needed extra was ir of ibamos and 'íbamos'
+                        if (Array.isArray(word)) {
+                            return word
+                        }
+                        // console.log(word,id)
                         // itereate over that array and see if it has a comma if it does split it
                         const string = word ? word : ''
                         if (string.includes(',')) {
@@ -341,6 +350,13 @@ const EachDay = ({match}) => {
         })
         setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take out the verbs
     }
+
+    // console.log(learnedWords)
+//     learnedWords.forEach((word,i) => {
+//     if (word==='prometes') {
+//         console.log(i)
+//     }
+// })
 
     
     return (

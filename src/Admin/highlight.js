@@ -34,11 +34,12 @@ const ending = (num,word) => {
         }
 
         } else if (before==='r') {
+            
     
             // off case
             if (word==='parte' || word==='fuerte' || word==='enorme' || word==='suerte'|| word==='norte'
             || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte' || word==='arte'
-            || word==='duerme') {
+            || word==='duerme' || word==='carlos') {
                 return false
             }
             // infinitive
@@ -97,7 +98,7 @@ const loop_end = (word,learnedWords,solutionArr) => {
 const higlight = (str,learnedWords) => {
     const wordArr = str.toLowerCase().split(' ')
     let solutionArr = []
-    const text = wordArr.reduce((sentence, word) => {
+    const text = wordArr.reduce((sentence, word,i) => {
         let punc = word.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
         if (punc) {
             let puncWord = ''
