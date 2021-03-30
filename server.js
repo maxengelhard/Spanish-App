@@ -290,6 +290,23 @@ app.get(`/day${lang}`, async (req,res) => {
 })
 
 
+app.get('/getprogress/:id/:day', (req,res) => {
+    try {
+        const {id,day} = req.params
+        const sql = `SELECT completed[${day}] FROM users WHERE id=${id}`
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+            res.json(result.rows)
+        })
+
+    }
+
+    catch(error) {
+        console.log(error)
+    }
+})
+
+
 
 app.post('/register', async (req,res) => {
     try {
@@ -416,20 +433,7 @@ app.post('/testuser', (req,res) => {
 
 // select all the users to send Emails too
 
-app.get('/getusers', (req,res) => {
-    try {
-        let sql = "SELECT * FROM users;"
-        client.query(sql,(err,result) => {
-            if (err) throw err;
-            res.json(result.rows)
-        })
 
-    }
-
-    catch(error) {
-        console.log(error)
-    }
-})
 
 
 // STRIPE

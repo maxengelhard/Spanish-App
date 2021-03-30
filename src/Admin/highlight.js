@@ -25,7 +25,8 @@ const ending = (num,word) => {
                     return obj[match]
                 }
                 const og_verb = verb.replace(/á|í|é/g,replace_acc)
-                
+    
+
                 return [og_verb,end]
             } else if (verb ==='da' || verb==='esta' || verb==='di') {
                 // irregulars
@@ -33,9 +34,11 @@ const ending = (num,word) => {
         }
 
         } else if (before==='r') {
+    
             // off case
             if (word==='parte' || word==='fuerte' || word==='enorme' || word==='suerte'|| word==='norte'
-            || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte' || word==='arte') {
+            || word==='corte' || word==='muerte' || word==='marte' || word==='transporte' || word==='reparte' || word==='arte'
+            || word==='duerme') {
                 return false
             }
             // infinitive

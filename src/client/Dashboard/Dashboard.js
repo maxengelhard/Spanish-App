@@ -30,7 +30,7 @@ const Dashboard = () => {
              <DashboardMenu id={id}/>
              <Switch>
             <Route path='/dashboard' exact component={Lessons} />
-            <Routes />
+            <Routes/>
             </Switch>
         </Router>:null}
         </div>

@@ -13,7 +13,7 @@ const Lessons = () => {
     )
 }
 
-const Routes = () => {
+const Routes = (id) => {
     return new Array(500).fill('').map((route,i) => {
        return <Route key={i} path={`/dashboard/es/${i}`} component={EachLesson}></Route>
         
