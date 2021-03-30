@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Slide = (...props) => {
-    
+
     const isCorrect = () => {
         console.log('correct!')
     }
@@ -24,9 +24,13 @@ const Slide = (...props) => {
     const {lessonObj,slideObj,newWords} = props[0]
     let wordArray = slideObj.wordarray
     if (wordArray.length < 10) {
+        // to add more words to the wordArray for testing
         const randomNew = shuffle(newWords)
         while(wordArray.length<10) {
-            wordArray.push(randomNew.pop())
+            const added = randomNew.pop()
+            if (!wordArray.includes(added.toUpperCase())) {
+            wordArray.push(added)
+            }
         }
     }
     return (

@@ -63,18 +63,17 @@ const EachLesson = ({match}) => {
     .then(data => {
         const newWords = data.map((word => {
                 return word.word
-        })).filter((word,i) => (i>=(+(day)*10) && i<((+day+1)*10)) ? true:false)
-        console.log(newWords)
-        const verbs = [...new Set(data.map(word => word.vid))].filter(num => Number.isInteger(num))
+        })).filter((word,i) => (i>=((+day)*10) && i<((+day+1)*10)) ? true:false)
+        const verbIds = [...new Set(data.map(word => word.vid))].filter(num => Number.isInteger(num))
         setNewWords(newWords)
-        console.log(verbs)
+       
         // to get verbs
         fetch(`/verbsspanish`)
         .then(res => res.json())
         .then(data => {
             // filter only the vids
             const usingVerbs = data.filter(obj => {
-                return verbs.includes(obj.vid)
+                return verbIds.includes(obj.vid)
             })
             console.log(usingVerbs)
         })
