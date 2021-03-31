@@ -306,6 +306,19 @@ app.get('/getprogress/:id/:day', (req,res) => {
     }
 })
 
+app.patch('/gotquestionright', (req,res) => {
+    try {
+
+        const {id,day,todayProgress} = req.body
+        const sql =`UPDATE users SET completed[${day}]=${todayProgress+1} WHERE id=${id}`
+        client.query(sql,(err,result) => {
+            if (err) throw err;
+        })
+    }
+    catch(error) {
+        console.log(error)
+    }
+})
 
 
 app.post('/register', async (req,res) => {

@@ -1,7 +1,7 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 
 const Slide = (...props) => {
-
+    const [wordBank,setWordBank] = useState([true,true])
     const shuffle = (array)=> {
         let currentIndex = array.length, temporaryValue, randomIndex;
         // While there remain elements to shuffle...
@@ -17,11 +17,12 @@ const Slide = (...props) => {
       
         return array;
       }
-    const {lessonObj,slideObj,newWords} = props[0]
-    let moreWordsArray = slideObj.wordarray.slice()
+    const {lessonObj,slideObj,newWords,gotQuestionRight} = props[0]
+    useEffect(() => {
+        let moreWordsArray = slideObj.wordarray.slice()
     if (moreWordsArray.length < 10) {
         // to add more words to the wordArray for testing
-        const randomNew = shuffle(newWords)
+        const randomNew = shuffle(newWords).slice()
         while(moreWordsArray.length<10) {
             const added = randomNew.pop()
             if (!moreWordsArray.includes(added.toUpperCase())) {
@@ -29,14 +30,17 @@ const Slide = (...props) => {
             }
         }
     }
+    setWordBank([moreWordsArray,true])
+    return true
+
+    },[slideObj,newWords])
+    
     let wordIndex = 0;
     let checkArray = []
     const placeWord = (e) => {
         const {wordarray} = props[0].slideObj
         const el = e.target
         const {innerText} = el
-        const thisIndex = [...el.parentElement.children].indexOf(el)
-        console.log(thisIndex)
         if (checkArray.filter(word => word!=='').length>wordarray.length) {
             shakebutton(el)
         }else {
@@ -48,7 +52,6 @@ const Slide = (...props) => {
     }
 
     const removeWord = (e) => {
-        if (wordIndex>0) {
         const el = e.target
         const {innerText} = el
         // find the matched inner text element of the hidden element and remove the class
@@ -69,7 +72,6 @@ const Slide = (...props) => {
             }
         }
         wordIndex = firstBlank
-        }
         
     }
 
@@ -77,9 +79,17 @@ const Slide = (...props) => {
         console.log(el)
     }
 
+    const textChange = () => {
+        const newBank = [...wordBank]
+        newBank[1] = !newBank[1]
+        setWordBank(newBank)
+    }
+
 
     const isCorrect = () => {
-        console.log(JSON.stringify(checkArray)===JSON.stringify(slideObj.wordarray))
+        if (JSON.stringify(checkArray)===JSON.stringify(slideObj.wordarray)) {
+            gotQuestionRight()
+        }
     }
 
     return (
@@ -89,15 +99,27 @@ const Slide = (...props) => {
             <div className='question'>{slideObj.question.split(' ').map((word,i) => {
                 if (word === '_') {
                     return <button className='opening' onClick={(e) => removeWord(e)} key={i}></button>
-                } else {
+                } else if (word.includes('_')) {
+                
+                    return <div style={{display:'inline-flex'}}key={i}>{word.split('_').map((part,j) =>{
+                    if (part==='') {
+                        return <button className='opening' onClick={(e) => removeWord(e)} key={j}></button>
+                    } else {
+                        return <div key={j}>{part}</div> 
+                    }
+                })}</div>
+                }
+                else {
                     return <div key={i}>{word}</div>
                 }
             })}</div>
+            {(wordBank[0].length===10 && wordBank[1] ===true)?
             <div className='wordBank'>
-                {shuffle(moreWordsArray.map((word,i) => {
+                {shuffle(wordBank[0].map((word,i) => {
                     return <button key={i} className='wordButtons' onClick={(e) => placeWord(e)}>{word.toLowerCase()}</button>
                 }))}
-            </div>
+            </div> :null}
+            <button style={{height:'30px',width:'60px'}} onClick={() => textChange()}>{!wordBank[1] ? 'Use Word Bank' : 'Use Text'}</button>
             <button style={{height:'30px',width:'60px'}} onClick={() => isCorrect()}>Test</button>
         </div>
     )
