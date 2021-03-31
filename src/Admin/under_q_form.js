@@ -1,6 +1,9 @@
 const under_q_form = (str) => {
     const arr = str.split(' ')
     return arr.map(word => {
+        if (word[0] ==='$' & !isNaN(parseInt(word.slice(1)))) {
+            return word
+        }
         if (!isNaN(parseInt(word)) || word==='-' || word==='.') {
             return word
         } 

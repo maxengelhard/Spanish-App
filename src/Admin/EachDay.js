@@ -152,7 +152,6 @@ const EachDay = ({match}) => {
         // this will check to see if we have a verb
         // if we do we want the last index of that and all other verbs will be pushed into to usedWords
             const verbId = data.filter(obj => obj.vid !== null)
-            console.log(verbId)
            await fetch(`/verbs${lang}`)
             .then(res => res.json())
             .then(async (verbs) => {

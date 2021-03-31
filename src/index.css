@@ -483,3 +483,23 @@ textarea {
   margin: auto;
   padding-left: 10px;
 }
+
+.question {
+  display: inline-flex;
+  margin-left: 5%;
+  width: 100%;
+}
+
+.question div {
+  width: auto;
+  margin-right: 1%;
+}
+
+.question button {
+  width: 40px;
+  margin-right: 1%;
+}
+
+.hidden {
+  display: none;
+}
