@@ -25,6 +25,8 @@ const EachLesson = ({match}) => {
     const [loading1,setLoading1] = useState(false)
     const [loading2,setLoading2] = useState(false)
 
+    const [correctStart,setCorrectStart] = useState(false)
+
     useEffect(() => {
     const fetchData = async () => {
         await fetch('/userdashboard')
@@ -120,6 +122,16 @@ const EachLesson = ({match}) => {
     }, [id,day])
 
     const gotQuestionRight = () => {
+        const sleep = (ms) => {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          }
+          const correctUI = async () => {
+            setCorrectStart(true)
+            console.log('Taking a break...');
+            await sleep(2000);
+            window.location.reload()
+        }
+        
         fetch(`/gotquestionright`, {
             headers: {
                 'Content-type': 'application/json'
@@ -128,7 +140,9 @@ const EachLesson = ({match}) => {
             body: JSON.stringify({day,id,todayProgress})
         })
         setTodayProgress(todayProgress+1)
-        window.location.reload()
+        
+        correctUI()
+        
     }
 
     const renderRedirect = () => {
@@ -145,14 +159,17 @@ const EachLesson = ({match}) => {
             {(loading1 && loading2) ?
             (slides && todayProgress>=0 && quizWords[todayProgress] && newWords.length===10) ?
                 <div>
+                    <input className='progress' type='range' min={0} max={100} value={(todayProgress/quizWords.length)*100} readOnly/>
                     <ul style={{display:'flex'}}>
                     {newWords.map((word,i) => {
                         return <li key={i}>{word}</li>
                     })}
                     </ul>
+                    {!correctStart ?
                     <Slide newWords={newWords}slideObj={slides[todayProgress]} 
                     lessonObj={quizWords[todayProgress]} gotQuestionRight={gotQuestionRight}
-                    />
+                    />:
+                    <div className='correct'>Correct!</div>}
                     </div>
             :null:null
             }

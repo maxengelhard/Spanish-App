@@ -495,11 +495,38 @@ textarea {
   margin-right: 1%;
 }
 
-.question button {
+.question button,input {
   width: 40px;
   margin-right: 1%;
 }
 
 .hidden {
   display: none;
+}
+
+.progress {
+  width: 100%;
+}
+
+.correct {
+  margin-left: 25%;
+  display: inline-block;
+  border: 1px solid #58a700;
+  text-align: center;
+  width: 50%;
+  height: 50px;
+  line-height: 50px;
+}
+
+@keyframes zoominoutsinglefeatured {
+  0% {
+      transform: scale(1,1);
+  }
+  100% {
+      transform: scale(2,2);
+  }
+}
+
+.correct {
+  animation: zoominoutsinglefeatured 2s;
 }
