@@ -120,7 +120,23 @@ const Slide = (...props) => {
     }
 
     const isCorrect = () => {
-        console.log(slideObj.wordarray)
+        slideObj.wordarray.forEach((word,i) => {
+        let punc = word.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
+        if (punc) {
+            let puncWord = ''
+            while(punc) {
+                puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)
+                punc = puncWord.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
+                if (checkArray[i]===puncWord) {
+                    checkArray[i] = word
+                    break;
+                }
+            }
+            
+        }
+        
+    })
+
         if (JSON.stringify(checkArray)===JSON.stringify(slideObj.wordarray)) {
             gotQuestionRight()
         }
@@ -128,7 +144,6 @@ const Slide = (...props) => {
 
     return (
         <div>
-            <div className='correct'>Correct</div>
             <h2>{lessonObj.word}: {lessonObj.way}</h2>
             <h5>{lessonObj.englishs}</h5>
             <div className='question'>{slideObj.question.split(' ').map((word,i) => {

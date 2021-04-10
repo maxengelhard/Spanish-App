@@ -24,6 +24,7 @@ const EachDay = ({match}) => {
     const [uniqueWords,setUniqueWords] = useState([])
     const [verbs,setVerbs] = useState([])
     const [usedVerbs,setUsedVerbs] = useState('')
+    const [originalWords,setOriginalWords] = useState([])
     const [highlightedWords,setHighlightedWords] = useState([])
 
     useEffect(() => {
@@ -257,10 +258,13 @@ const EachDay = ({match}) => {
         // this is to create all the highlited words
         if (day>=0 && sentences && questions[day].length>0){
         const newMove = sentences.map(sentence => {
-        const highlitedWords = higlight(sentence.spanishs,learnedWords)[1]
+        const highlitedWords = higlight(sentence.spanishs,learnedWords)
         return highlitedWords
         })
-        setHighlightedWords(newMove)
+        const upperWords = newMove.map(arr => arr[1])
+        const regularWords = newMove.map(arr => arr[2])
+        setOriginalWords(regularWords)
+        setHighlightedWords(upperWords)
         }
 
     },[questions,day,learnedWords,sentences])
@@ -325,7 +329,7 @@ const EachDay = ({match}) => {
                 'Content-type': 'application/json'
             },
            method: 'PATCH',
-           body: JSON.stringify({day, lesson: questions[day], solution: sentences, usedVerbs,highlightedWords})
+           body: JSON.stringify({day, lesson: questions[day], solution: sentences, usedVerbs,originalWords,highlightedWords})
         })
     }
 
@@ -350,12 +354,6 @@ const EachDay = ({match}) => {
         setVerbs([...verbs].filter(allObjs => allObjs!==obj)) // then take out the verbs
     }
 
-    // console.log(learnedWords)
-//     learnedWords.forEach((word,i) => {
-//     if (word==='prometes') {
-//         console.log(i)
-//     }
-// })
 
     
     return (

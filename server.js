@@ -122,7 +122,7 @@ app.get(`/lesson${lang}:day`, async (req,res) => {
 app.patch(`/update${lang}`, async (req,res) => {
     try {
         const id = req.body.day
-        const {lesson,solution,usedVerbs,highlightedWords} = req.body
+        const {lesson,solution,usedVerbs,originalWords,highlightedWords} = req.body
         const questions = lesson.map(obj => [obj.id,obj.question,obj.upper])
         const questionStr = lesson.reduce((str, obj,i) => {
             return str + `<h4>${solution[i].word}: ${solution[i].way}</h4><p>`+ solution[i].englishs + ' -> '+ obj.question  + '->' + obj.upper + '<p>'
@@ -144,9 +144,10 @@ app.patch(`/update${lang}`, async (req,res) => {
             arr[2] = arr[2] ? `E'${arr[2].replace(/'/g,"\\'")}'` : null
             const {word} = solution[i]
             const highlight = highlightedWords[i]
-            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]},${id},'${word}',($1)) ON CONFLICT (id) DO UPDATE
-            SET question=${arr[1]}, upper=${arr[2]},day=${id},word='${word}', wordarray=($1)`
-            client.query(updateSQL,[highlight],(err,result) => {
+            const original = originalWords[i]
+            const updateSQL =`INSERT INTO questions${lang} VALUES ('${arr[0]}',${arr[1]},${arr[2]},${id},'${word}',($1),($2)) ON CONFLICT (id) DO UPDATE
+            SET question=${arr[1]}, upper=${arr[2]},day=${id},word='${word}', wordarray=($1),original_words=($2)`
+            client.query(updateSQL,[highlight,original],(err,result) => {
                 if (err) throw err;
             })
 

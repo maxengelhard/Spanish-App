@@ -26,7 +26,6 @@ const ending = (num,word) => {
                 }
                 const og_verb = verb.replace(/á|í|é/g,replace_acc)
     
-
                 return [og_verb,end]
             } else if (verb ==='da' || verb==='esta' || verb==='di') {
                 // irregulars
@@ -53,10 +52,20 @@ const ending = (num,word) => {
 
 }
 
-const loop_end = (word,learnedWords,solutionArr) => {
+const loop_end = (thisWord,learnedWords,solutionArr,withPunc) => {
+    const word = thisWord.toLowerCase()
     for (let i=6;i>=2;i--) {
         const result = ending(i,word)
         if (result) {
+            const indexi = withPunc ? result.map((word,i) => {
+                    const indexOf = withPunc.indexOf(word)
+                    // begginging
+                    if (i===0) {
+                        return withPunc.slice(0,indexOf+word.length)
+                    } else {
+                    return withPunc.slice(indexOf)
+                    }
+                }) : null
             let irregular = '&' // something that won't be in learned words
             if (result[0]==='vamo') {
                 irregular='va'
@@ -67,25 +76,36 @@ const loop_end = (word,learnedWords,solutionArr) => {
                 let front = result[1].slice(0,index)
                 let back = result[1].slice(index)
                 if (learnedWords.includes(front)) {
-                    front = front.toUpperCase()
+                    // this will always have an undercase part of a word
                     solutionArr.push(front)
+                    front = front.toUpperCase()
                 }
                 if (learnedWords.includes(back)) {
+                    // the ending might have a punc
+                    const puncback = indexi[1].indexOf(back) !== -1 ? indexi[1] : back
+                    solutionArr.push(puncback)
                     back = back.toUpperCase()
-                    solutionArr.push(back)
                 }
                 result[1] = front + back
             }
              else if (learnedWords.includes(result[0]) || learnedWords.includes(irregular)) {
                  // to check to see if we have the verb
+                 // check if begging has a punc
+                    const puncIndex = withPunc ? withPunc.indexOf(result[0]) : 0
+                    solutionArr.push(thisWord.slice(0,result[0].length+puncIndex))
                     result[0] = result[0].toUpperCase()
-                    solutionArr.push(result[0])
+                    
                 } else {
                     result[0] = word.slice(0,word.length-i)
                 }
                 if (learnedWords.includes(result[1])) {
+                    // does the ending have a punc
+                    const puncIndex = withPunc ? withPunc.indexOf(result[1]) : null
+                    const finalEnd = puncIndex ? thisWord.slice(indexi[0].length) : result[1]
+                    solutionArr.push(finalEnd)
+                    // solutionArr.push(result[1])
                     result[1] = '-' + result[1].toUpperCase()
-                    solutionArr.push(result[1])
+                    
                 }
                 return result.join('')
 
@@ -96,22 +116,23 @@ const loop_end = (word,learnedWords,solutionArr) => {
 }
 
 const higlight = (str,learnedWords) => {
-    const wordArr = str.toLowerCase().split(' ')
+    const wordArr = str.split(' ')
     let solutionArr = []
-    const text = wordArr.reduce((sentence, word,i) => {
-        let punc = word.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
+    const text = wordArr.reduce((sentence, thisWord,i) => {
+        const word = thisWord.toLowerCase()
+        let punc = thisWord.match('\\?|\\!|¿|¡|-|;|:|"|\\.|\\,')
         if (punc) {
             let puncWord = ''
             while(punc) {
                 puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)
-                punc = puncWord.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
+                punc = puncWord.match('\\?|\\!|¿|¡|-|;|:|"|\\.|\\,')
             }
             // endings
-            if (learnedWords.includes(puncWord) && word!=='-' && word!=='.') {
-                solutionArr.push(word.toUpperCase())
+            if (learnedWords.includes(puncWord.toLowerCase()) && word!=='-' && word!=='.') {
+                solutionArr.push(thisWord)
                 return `${sentence + word.toUpperCase()} `
             } else {
-                const result = loop_end(puncWord,learnedWords,solutionArr)
+                const result = loop_end(puncWord,learnedWords,solutionArr,thisWord)
                 if (result) {
                 return `${sentence + result} `
                 }
@@ -119,12 +140,12 @@ const higlight = (str,learnedWords) => {
 
         }
         else if (learnedWords.includes(word)) {
-            solutionArr.push(word.toUpperCase())
+            solutionArr.push(thisWord)
         return `${sentence + word.toUpperCase()} `
         }
         // check to see the endings
         else {
-                const result = loop_end(word,learnedWords,solutionArr)
+                const result = loop_end(thisWord,learnedWords,solutionArr)
                 if (result) {
                 return `${sentence + result} `
                 }
@@ -132,7 +153,10 @@ const higlight = (str,learnedWords) => {
 
     return `${sentence + word} `
     }, '').trim()
-    return [text,solutionArr]
+    // make all solutionArr uppercase to show the differences
+    const upperCaseArr = solutionArr.map(word => word.toUpperCase())
+    // console.log(solutionArr)
+    return [text,upperCaseArr,solutionArr]
 
 }
 

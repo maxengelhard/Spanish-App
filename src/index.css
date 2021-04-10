@@ -495,7 +495,7 @@ textarea {
   margin-right: 1%;
 }
 
-.question button,input {
+.opening {
   width: 40px;
   margin-right: 1%;
 }
@@ -509,6 +509,7 @@ textarea {
 }
 
 .correct {
+  margin-top: 25px;
   margin-left: 25%;
   display: inline-block;
   border: 1px solid #58a700;
@@ -523,10 +524,10 @@ textarea {
       transform: scale(1,1);
   }
   100% {
-      transform: scale(2,2);
+      transform: scale(1.5,1.5);
   }
 }
 
 .correct {
-  animation: zoominoutsinglefeatured 2s;
+  animation: zoominoutsinglefeatured 2.5s;
 }

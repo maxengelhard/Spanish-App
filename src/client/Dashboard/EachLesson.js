@@ -59,7 +59,7 @@ const EachLesson = ({match}) => {
             const sorted = data.sort((a,b) => {
                 return (a.id.split('-')[1] - b.id.split('-')[1])
             })
-            // console.log(sorted)
+            console.log(sorted)
             setSlides(sorted)
         })
 
@@ -127,7 +127,6 @@ const EachLesson = ({match}) => {
           }
           const correctUI = async () => {
             setCorrectStart(true)
-            console.log('Taking a break...');
             await sleep(2000);
             window.location.reload()
         }
