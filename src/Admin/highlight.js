@@ -82,7 +82,7 @@ const loop_end = (thisWord,learnedWords,solutionArr,withPunc) => {
                 }
                 if (learnedWords.includes(back)) {
                     // the ending might have a punc
-                    const puncback = indexi[1].indexOf(back) !== -1 ? indexi[1] : back
+                    const puncback = (indexi && (indexi[1].indexOf(back) !== -1)) ? indexi[1] : back
                     solutionArr.push(puncback)
                     back = back.toUpperCase()
                 }

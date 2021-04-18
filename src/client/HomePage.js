@@ -6,7 +6,7 @@ import MailForm from './mailForm'
 import HowEmail from './HowEmail'
 import CallToAction from './CallToAction'
 import {Redirect} from 'react-router-dom'
-import Stripe from './Stripe'
+// import Stripe from './Stripe'
 
 const HomePage = () => {
     if (localStorage.user_id) {
@@ -21,7 +21,7 @@ const HomePage = () => {
       <HowEmail />
       <SampleEmail />
       <MailForm /> 
-      <Stripe />
+      {/* <Stripe /> */}
         </div>
     )
 }

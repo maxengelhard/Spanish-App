@@ -21,10 +21,12 @@ const EachLesson = ({match}) => {
     const [adjs,setAdjs] = useState(false)
     const [nouns,setNouns] = useState(false)
     const [verbs,setVerbs] = useState(false)
+    const [dropDown,setDropDown] = useState([])
 
     const [loading1,setLoading1] = useState(false)
     const [loading2,setLoading2] = useState(false)
 
+    // const [fullCorrection,setFullCorrection] = useState(false)
     const [correctStart,setCorrectStart] = useState(false)
 
     useEffect(() => {
@@ -67,10 +69,11 @@ const EachLesson = ({match}) => {
         .then(res => res.json())
         .then(data => {
             const newWords = data.map((word => {
-                    return word.word
+                    return word
             })).filter((word,i) => (i>=((+day)*10) && i<((+day+1)*10)) ? true:false)
             const verbIds = [...new Set(data.map(word => word.vid))].filter(num => Number.isInteger(num))
             setNewWords(newWords)
+            setDropDown(new Array(10).fill(false))
         
             // to get verbs
             fetch(`/verbsspanish`)
@@ -80,20 +83,20 @@ const EachLesson = ({match}) => {
                 const usingVerbs = data.filter(obj => {
                     return verbIds.includes(obj.vid)
                 })
-                console.log(usingVerbs)
+                setVerbs(usingVerbs)
             })
         })
 
         await fetch(`/nounsspanish${day}`)
         .then(res => res.json())
         .then(data => {
-            console.log(data)
+            setNouns(data)
         })
 
         await fetch(`/adjectivesspanish${day}`)
         .then(res => res.json())
         .then(data => {
-                console.log(data)
+                setAdjs(data)
             })
         setLoading1(true)
     }
@@ -121,15 +124,27 @@ const EachLesson = ({match}) => {
         return true
     }, [id,day])
 
-    const gotQuestionRight = () => {
-        const sleep = (ms) => {
-            return new Promise(resolve => setTimeout(resolve, ms));
-          }
+    const dropDownCall = (i) => {
+        console.log(i)
+        let prevState = [...dropDown]
+        prevState[i] = !prevState[i]
+        setDropDown(prevState)
+    }
+
+    const gotQuestionRight = React.useCallback((original_words) => {
+        // const sleep = (ms) => {
+        //     return new Promise(resolve => setTimeout(resolve, ms));
+        //   }
           const correctUI = async () => {
             setCorrectStart(true)
-            await sleep(2000);
-            window.location.reload()
+            // await sleep(2000);
+            // window.location.reload()
         }
+
+        // if (original_words) {
+        //     console.log(quizWords[todayProgress])
+        //     console.log(slides[todayProgress])
+        // }
         
         fetch(`/gotquestionright`, {
             headers: {
@@ -142,7 +157,7 @@ const EachLesson = ({match}) => {
         
         correctUI()
         
-    }
+    },[day,id,todayProgress])
 
     const renderRedirect = () => {
         if (redirect) {
@@ -159,16 +174,40 @@ const EachLesson = ({match}) => {
             (slides && todayProgress>=0 && quizWords[todayProgress] && newWords.length===10) ?
                 <div>
                     <input className='progress' type='range' min={0} max={100} value={(todayProgress/quizWords.length)*100} readOnly/>
-                    <ul style={{display:'flex'}}>
+                    <ul className='todaysWords' style={{display:'flex'}}>
                     {newWords.map((word,i) => {
-                        return <li key={i}>{word}</li>
+                        let adjsList,nounsList,verbsList,callOut
+            
+                        if (word.aid!==null) {
+                            callOut=true
+                            adjsList = [...new Set(Object.values(adjs.filter(obj => obj.aid===word.aid)[0]).filter(value => typeof(value) === 'string'))]
+                        }
+                        if (word.nid!==null) {
+                            callOut=true
+                            nounsList = [...new Set(Object.values(nouns.filter(obj => obj.nid===word.nid)[0]).filter(value => typeof(value) === 'string'))]
+                        }
+
+                        if (word.vid!==null) {
+                            callOut=true
+                            verbsList = [...new Set(Object.values(verbs.filter(obj => obj.vid=== word.vid)[0]).filter(value => typeof(value) === 'string'))]
+                        }
+
+                        return <li className={`${callOut ? 'addedWords' : 'singleWords'}`} key={i} onClick={() => dropDownCall(i)}>
+                            <p>{word.word}</p>
+                            {(adjsList && dropDown[i]) ? adjsList.map((value,j) => <div key={j}>{value}</div>): null}
+                            {(nounsList && dropDown[i]) ? nounsList.map((value,j) => <div key={j}>{value}</div>): null}
+                            {(verbsList && dropDown[i]) ? verbsList.map((value,j) => <div key={j}>{value}</div>): null}
+                        </li>
                     })}
                     </ul>
                     {!correctStart ?
-                    <Slide newWords={newWords}slideObj={slides[todayProgress]} 
+                    <Slide newWords={newWords.map(obj => obj.word)} slideObj={slides[todayProgress]} 
                     lessonObj={quizWords[todayProgress]} gotQuestionRight={gotQuestionRight}
                     />:
-                    <div className='correct'>Correct!</div>}
+                    <div className='correct'>
+                        <h1>Correct!</h1>
+                        <p>Full Spanish: {quizWords[todayProgress-1].spanishs}</p>
+                        </div>}
                     </div>
             :null:null
             }

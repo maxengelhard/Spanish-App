@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 
-const Slide = (...props) => {
+const Slide = React.memo((...props) => {
     const [wordBank,setWordBank] = useState([true,true])
 
     const shuffle = (array)=> {
@@ -19,14 +19,17 @@ const Slide = (...props) => {
         return array;
       }
     const {lessonObj,slideObj,newWords,gotQuestionRight} = props[0]
+    
+    
     useEffect(() => {
-        let moreWordsArray = slideObj.wordarray.slice()
+        let moreWordsArray = slideObj.original_words.slice()
     if (moreWordsArray.length < 10) {
         // to add more words to the wordArray for testing
         const randomNew = shuffle(newWords).slice()
         while(moreWordsArray.length<10) {
             const added = randomNew.pop()
-            if (!moreWordsArray.includes(added.toUpperCase())) {
+            const upperCase = slideObj.wordarray
+            if (!upperCase.includes(added.toUpperCase())) {
                 moreWordsArray.push(added)
             }
         }
@@ -39,6 +42,7 @@ const Slide = (...props) => {
 
     const [checkArray,setCheckArray] = useState([])
     const [wordIndex,setWordIndex] = useState(0)
+
     const placeWord = (e) => {
         let updateCheckArray = [...checkArray]
         const {wordarray} = props[0].slideObj
@@ -49,7 +53,7 @@ const Slide = (...props) => {
         }else {
         el.classList.add('hidden')
         document.getElementsByClassName('opening')[wordIndex].innerText = innerText
-        updateCheckArray[wordIndex] = innerText.toUpperCase()
+        updateCheckArray[wordIndex] = innerText
         const openings = document.getElementsByClassName('opening')
         for (let i=0; i<openings.length;i++) {
             if (openings[i].innerText ==='') {
@@ -112,7 +116,7 @@ const Slide = (...props) => {
         const openings = document.getElementsByClassName('opening')
         for (let i=0;i<openings.length;i++) {
             if (openings[i] ===element) {
-                updateCheckArray[i] = text.toUpperCase()
+                updateCheckArray[i] = text
                 element.setAttribute('value',text)
             }
         }
@@ -120,6 +124,7 @@ const Slide = (...props) => {
     }
 
     const isCorrect = () => {
+        let noCaseCheck = checkArray.map(word => word.toUpperCase())
         slideObj.wordarray.forEach((word,i) => {
         let punc = word.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
         if (punc) {
@@ -127,8 +132,8 @@ const Slide = (...props) => {
             while(punc) {
                 puncWord = punc.input.slice(0,punc.index) + punc.input.slice(punc.index+1)
                 punc = puncWord.match('\\?|\\!|¿|¡|-|;|"|\\.|\\,')
-                if (checkArray[i]===puncWord) {
-                    checkArray[i] = word
+                if (noCaseCheck[i]===puncWord) {
+                    noCaseCheck[i] = word
                     break;
                 }
             }
@@ -137,8 +142,13 @@ const Slide = (...props) => {
         
     })
 
-        if (JSON.stringify(checkArray)===JSON.stringify(slideObj.wordarray)) {
+
+        if (JSON.stringify(noCaseCheck)===JSON.stringify(slideObj.wordarray)) {
+            if (JSON.stringify(checkArray)===JSON.stringify(slideObj.original_words)) {
             gotQuestionRight()
+            } else {
+                gotQuestionRight(slideObj.original_words)
+            }
         }
     }
 
@@ -166,13 +176,18 @@ const Slide = (...props) => {
             {(wordBank[0].length===10 && wordBank[1] ===true)?
             <div className='wordBank'>
                 {wordBank[0].map((word,i) => {
-                return <button key={i} className='wordButtons' onClick={(e) => placeWord(e)}>{word.toLowerCase()}</button>
+                return <button key={i} className='wordButtons' onClick={(e) => placeWord(e)}>{word}</button>
                 })}
             </div> :null}
             <button style={{height:'30px',width:'60px'}} onClick={() => textChange()}>{!wordBank[1] ? 'Use Word Bank' : 'Use Text'}</button>
             <button style={{height:'30px',width:'60px'}} onClick={() => isCorrect()}>Test</button>
         </div>
     )
-}
+}, (prevProps,nextProps) => {
+    if (prevProps.lessonObj !== nextProps.lessonObj || prevProps.slideObj !==nextProps.slideObj) {
+        return false
+    }
+    return true
+})
 
 export default Slide

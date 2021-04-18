@@ -286,10 +286,12 @@ const EachDay = ({match}) => {
         if (Number.isInteger(index)) {
         const highlitedText = higlight(sentences[index].spanishs,learnedWords)
         const withUpper = solution(highlitedText[1],newQuestion)
+        const withReg = solution(highlitedText[2],newQuestion)
             edited[index] = {
             id: `${day}-${index}`,
             question: `${newQuestion}`,
             upper: withUpper,
+            regular: withReg,
             highlitedWords: highlitedText[1],
             active:false
         }
@@ -297,10 +299,12 @@ const EachDay = ({match}) => {
         else {
         const highlitedText = higlight(sentences[questions[day].length].spanishs,learnedWords)
         const withUpper = solution(highlitedText[1],newQuestion)
+        const withReg = solution(highlitedText[2],newQuestion) 
             edited.push({
                 id: `${day}-${questions[day].length}`,
                 question: `${newQuestion}`,
                 upper: withUpper,
+                regular: withReg,
                 highlitedWords: highlitedText[1],
                 active:false
             })

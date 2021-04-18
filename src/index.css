@@ -531,3 +531,21 @@ textarea {
 .correct {
   animation: zoominoutsinglefeatured 2.5s;
 }
+
+
+/* for dashboard words*/
+
+
+.todaysWords {
+  list-style-type: none;
+}
+.singleWords p {
+  padding: 2px 10px;
+}
+
+.addedWords p {
+  padding: 2px 10px;
+  width: max-content;
+  background-color: beige;
+
+}
