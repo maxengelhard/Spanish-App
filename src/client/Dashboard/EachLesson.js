@@ -49,8 +49,6 @@ const EachLesson = ({match}) => {
         await fetch(`/dayspanish${+day+1}`)
         .then(res => res.json())
         .then(data => {
-            
-            console.log(data)
             setQuizWords(data)
 
         })
@@ -61,7 +59,6 @@ const EachLesson = ({match}) => {
             const sorted = data.sort((a,b) => {
                 return (a.id.split('-')[1] - b.id.split('-')[1])
             })
-            console.log(sorted)
             setSlides(sorted)
         })
 
@@ -125,20 +122,15 @@ const EachLesson = ({match}) => {
     }, [id,day])
 
     const dropDownCall = (i) => {
-        console.log(i)
         let prevState = [...dropDown]
         prevState[i] = !prevState[i]
         setDropDown(prevState)
     }
 
     const gotQuestionRight = React.useCallback((original_words) => {
-        // const sleep = (ms) => {
-        //     return new Promise(resolve => setTimeout(resolve, ms));
-        //   }
+       
           const correctUI = async () => {
             setCorrectStart(true)
-            // await sleep(2000);
-            // window.location.reload()
         }
 
         // if (original_words) {
@@ -207,6 +199,7 @@ const EachLesson = ({match}) => {
                     <div className='correct'>
                         <h1>Correct!</h1>
                         <p>Full Spanish: {quizWords[todayProgress-1].spanishs}</p>
+                        <button onClick={() => window.location.reload()}>Next</button>
                         </div>}
                     </div>
             :null:null

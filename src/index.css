@@ -519,6 +519,26 @@ textarea {
   line-height: 50px;
 }
 
+/* dashboard lessons*/
+
+.dashboard-table {
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  margin-left: 5%;
+}
+
+
+.dashboardLessons {
+  width: 75px;
+  text-align: center;
+  background-color: coral;
+  margin: 5px;
+}
+
+
+/* correct */
+
 @keyframes zoominoutsinglefeatured {
   0% {
       transform: scale(1,1);
@@ -534,6 +554,7 @@ textarea {
 
 
 /* for dashboard words*/
+
 
 
 .todaysWords {

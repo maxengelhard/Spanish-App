@@ -5,9 +5,9 @@ import EachLesson from './EachLesson'
 const Lessons = () => {
     const days = new Array(500).fill('')
     return (
-        <div>
+        <div className='dashboard-table'>
            {days.map((string,i) => {
-               return  <Link key={i} to={`/dashboard/es/${i}`}>Day {i+1}</Link>
+               return  <div key={i} className='dashboardLessons'><Link to={`/dashboard/es/${i}`}>Day {i+1}</Link></div>
            })}
         </div>
     )

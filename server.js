@@ -476,6 +476,7 @@ app.post('/create-checkout-session', async (req, res) => {
   res.json({ id: session.id });
 });
 
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`Server started on ${port}`))
